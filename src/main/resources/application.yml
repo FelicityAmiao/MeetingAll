@@ -2,3 +2,13 @@ server:
   port: 8077
   servlet:
     context-path: /api
+
+LFASR:
+  appID: 5fbe035d
+  secretKey: 56d8a5a073d90a7bc10ff5d580931ab2
+  host: http://raasr.xfyun.cn/api
+  prepareURL: /prepare
+  uploadURL: /upload
+  mergeURL: /merge
+  getProgressURL: /getProgress
+  getResultURL: /getResult
