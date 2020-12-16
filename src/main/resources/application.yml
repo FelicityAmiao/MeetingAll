@@ -1,8 +1,9 @@
 server:
   port: 8077
-  servlet:
-    context-path: /api
-
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:Meeting_all@huangda7-w10:27017/meeting_all
 LFASR:
   appID: 5fbe035d
   secretKey: 56d8a5a073d90a7bc10ff5d580931ab2

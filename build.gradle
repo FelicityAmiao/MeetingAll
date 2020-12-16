@@ -15,6 +15,7 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     maven{
         url 'http://maven.aliyun.com/nexus/content/groups/public/'
     }
@@ -22,6 +23,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.75'

@@ -3,9 +3,12 @@ package com.group8.meetingall.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.group8.meetingall.dto.ASRAPIResultDto;
+import com.group8.meetingall.entity.TranslateResultEntity;
+import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.EncryptUtil;
 import com.group8.meetingall.utils.HttpUtil;
 import com.group8.meetingall.utils.SliceIdGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,8 +43,10 @@ public class ASRService {
     private String getProgressURL;
     @Value("${LFASR.getResultURL}")
     private String getResultURL;
+    @Autowired
+    TranslateResultRepository translateResultRepository;
 
-    public void startConvert() {
+    public String convert() {
         try {
             File audio = new File(AUDIO_FILE_PATH);
             FileInputStream fis = new FileInputStream(audio);
@@ -91,10 +96,12 @@ public class ASRService {
             for (int i = 0; i < length; i++) {
                 resultStr.append(jsonArray.getJSONObject(i).getString("onebest"));
             }
-            System.out.println("----------转换后的结果----------\n" + resultStr);
+            TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(resultStr.toString());
+            return translateResultEntity.getUUID();
         } catch (SignatureException | IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public MultiValueMap<String, String> getBaseAuthParam(String taskId) throws SignatureException {
@@ -188,4 +195,7 @@ public class ASRService {
         return response.getData();
     }
 
+    public String getTranslateResultFile(String uuid)  {
+        return translateResultRepository.getFileContent(uuid);
+    }
 }
