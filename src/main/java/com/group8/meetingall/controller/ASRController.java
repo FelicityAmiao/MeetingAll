@@ -24,7 +24,7 @@ public class ASRController {
     public String convert() throws UnknownHostException {
         String UUID = asrService.convert();
         InetAddress inetAddress= InetAddress.getLocalHost();
-        return inetAddress.getHostName() + ":" + serverPort + "/ASR/getTranslateResultFile?uuid=" + UUID;
+        return inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
     @GetMapping(value="/getTranslateResultFile")

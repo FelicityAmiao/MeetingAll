@@ -1,5 +1,7 @@
 server:
   port: 8077
+  servlet:
+    context-path: /api
 spring:
   data:
     mongodb:
