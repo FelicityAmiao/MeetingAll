@@ -9,6 +9,6 @@ public class TestingDeploy {
 
   @RequestMapping("/hello")
   public String greet() {
-    return "Hello guys!";
+    return "Hello guys! Have a Nice Day!";
   }
 }
