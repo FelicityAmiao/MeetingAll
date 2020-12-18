@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 public class HighFrequencyServiceImpl implements HighFrequencyService {
     @Override
     public List<Keyword> getHighFrequencyWords(String text, Integer count) {
+        if(count == null){
+            count = 1;
+        }
         List<Keyword> keywordList = new ArrayList<>();
         Map<String, Double> idfMap = InverseDocumentFrequency.getInstance();
         Map<String, Double> tfMap= TermFrequency.getTermFrequency(text);
