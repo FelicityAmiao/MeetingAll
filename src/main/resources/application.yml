@@ -15,3 +15,6 @@ LFASR:
   mergeURL: /merge
   getProgressURL: /getProgress
   getResultURL: /getResult
+
+keyword:
+  percent: 0.01
