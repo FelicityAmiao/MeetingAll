@@ -10,9 +10,9 @@ import java.util.Optional;
 public class ArduinoController {
 
   @PostMapping("/status")
-  public String receiveMeetingStatus(@RequestBody MeetingStatusDto meetingStatusDto) {
-    Optional<MeetingStatusDto> op = Optional.ofNullable(meetingStatusDto);
-    String responseData = "Hi all, get data from Arduino: roomId = " + op.get().getRoomId() + ", status = " + op.get().getStatus();
+  public String receiveMeetingStatus(@RequestBody String meetingStatusDto) {
+//    Optional<MeetingStatusDto> op = Optional.ofNullable(meetingStatusDto);
+    String responseData = "Hi all, get data from Arduino: roomId = " + meetingStatusDto;
     System.out.println("[info]: " + responseData);
     return responseData;
   }
