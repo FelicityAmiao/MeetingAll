@@ -12,6 +12,8 @@ public class ArduinoController {
   @PostMapping("/status")
   public String receiveMeetingStatus(@RequestBody MeetingStatusDto meetingStatusDto) {
     Optional<MeetingStatusDto> op = Optional.ofNullable(meetingStatusDto);
-    return "Hi all, get data from Arduino: roomId = " + op.get().getRoomId() + ", status = " + op.get().getStatus();
+    String responseData = "Hi all, get data from Arduino: roomId = " + op.get().getRoomId() + ", status = " + op.get().getStatus();
+    System.out.println("[info]: " + responseData);
+    return responseData;
   }
 }
