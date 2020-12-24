@@ -18,3 +18,20 @@ LFASR:
 
 keyword:
   percent: 0.01
+
+logging:
+  level:
+    root: info
+#    config: ./logback.xml
+
+  file:
+    name: /home/log/MeetingAll_app.log
+#    name: D:/log/MeetingAll_app.log
+    max-size: 20MB
+    max-history: 7
+#    path: /log
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "applicationLog.%d{yyyy-MM-dd}.log"
+
