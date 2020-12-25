@@ -20,6 +20,8 @@ public class MeetingProfile {
     private String endTime;
     private boolean finished;
     private String reportAddress;
+    private String audioAddress;
+    private String status;
     private boolean delete;
 //    1 means finished, 0 means not begin
 }

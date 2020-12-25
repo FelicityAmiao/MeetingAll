@@ -2,7 +2,7 @@ package com.group8.meetingall.utils;
 
 import com.group8.meetingall.TestUtil;
 import com.group8.meetingall.entity.CustomRun;
-import com.group8.meetingall.service.impl.HighFrequencyServiceImpl;
+import com.group8.meetingall.service.HighFrequencyService;
 import com.group8.meetingall.vo.Keyword;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HighlightUtilTest {
-    private HighFrequencyServiceImpl highFrequencyService = new HighFrequencyServiceImpl();
+    private HighFrequencyService highFrequencyService = new HighFrequencyService();
 
     @Test
     public void highLightWords() {
