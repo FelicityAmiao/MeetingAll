@@ -37,6 +37,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.1')
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
     // https://mvnrepository.com/artifact/commons-logging/commons-logging
     compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
 }

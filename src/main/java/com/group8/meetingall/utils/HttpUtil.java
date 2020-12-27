@@ -36,6 +36,12 @@ public class HttpUtil {
         return responseEntity.getBody();
     }
 
+    public static ResponseEntity post(String url, byte[] body, HttpHeaders headers) {
+        RestTemplate restTemplate = new RestTemplate();
+        org.springframework.http.HttpEntity<byte[]> requestEntity = new org.springframework.http.HttpEntity<>(body, headers);
+        return restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<Object>() {
+        });
+    }
 
     public static String postMulti(String url, Map<String, String> param, byte[] body) {
         String result = null;
