@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.group8.meetingall.utils.Constant.*;
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
@@ -88,7 +90,10 @@ public class MyMeetingService {
             BeanUtils.copyProperties(meetingProfile, meetingRecordVo);
             meetingRecordVoList.add(meetingRecordVo);
         }
-        return meetingRecordVoList;
+        return meetingRecordVoList.stream()
+                .sorted(Comparator.comparing(MeetingRecordVo::getStartDate))
+                .sorted(Comparator.comparing(MeetingRecordVo::getStartTime))
+                .collect(Collectors.toList());
     }
 
     public MeetingVo generateReport(String meetingId) {
