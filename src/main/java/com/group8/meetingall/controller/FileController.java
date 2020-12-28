@@ -16,11 +16,19 @@ import java.net.URLEncoder;
 public class FileController {
     @Value("${filePath.report}")
     private String reportPath;
+    @Value("${filePath.audio}")
+    private String audioPath;
 
     @GetMapping(value = "/download/{file}")
-    public void getTranslateResultFile(HttpServletResponse response, @PathVariable(value = "file") String fileName) throws IOException {
+    public void downloadFile(HttpServletResponse response, @PathVariable(value = "file") String fileName) throws IOException {
         OutputStream out = null;
+        String filteType = fileName.substring(fileName.lastIndexOf(".")+1);
         String path = reportPath + "/" + fileName;
+        String contentType = "application/msword;charset=UTF-8";
+        if("wav".equalsIgnoreCase(filteType)){
+            path = audioPath + "/" + fileName;
+            contentType = "audio/wav";
+        }
         try {
             File file = new File(path);
             FileInputStream fis = new FileInputStream(file);
@@ -30,9 +38,9 @@ public class FileController {
             while ((len = fis.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
             }
-            response.setContentType("application/msword;charset=UTF-8");
+            response.setContentType(contentType);
             response.setHeader("Content-Disposition", "attachment;filename="
-                    .concat(URLEncoder.encode("Meeting Report - " + fileName + ".docx", "UTF-8")
+                    .concat(URLEncoder.encode("Meeting Report - " + fileName, "UTF-8")
                             .replaceAll("\\+", "%20")));
         } catch (IOException e) {
             e.printStackTrace();
