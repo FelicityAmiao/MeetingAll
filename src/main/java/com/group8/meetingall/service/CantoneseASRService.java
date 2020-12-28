@@ -10,6 +10,7 @@ import com.group8.meetingall.utils.SignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -91,8 +92,8 @@ public class CantoneseASRService {
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
-
-        String audioFilePath = this.getClass().getResource("/").getPath() + "/audio/guangdonghua.mp3";
+        String audioFilePath = String.valueOf(new ClassPathResource("\\audio\\guangdonghua.mp3").getInputStream());
+//        String audioFilePath = this.getClass().getResource("/").getPath() + "/audio/guangdonghua.mp3";
         File file = new File(audioFilePath);
         FileInputStream inputFile = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
