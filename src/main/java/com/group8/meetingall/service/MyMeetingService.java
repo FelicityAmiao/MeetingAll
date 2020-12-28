@@ -73,12 +73,10 @@ public class MyMeetingService {
         List<MeetingProfile> meetingProfiles = meetingRepository.findAllMeetingsByUserId(user);
         for(MeetingProfile meetingProfile : meetingProfiles){
             MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
-            StringBuilder room = new StringBuilder();
-            room.append(meetingProfile.getRoom().get(0)).append("F ").append(meetingProfile.getRoom().get(0));
-            meetingRecordVo.setMeetingRoom(room.toString());
+            meetingRecordVo.setRoom(meetingProfile.getRoom());
             meetingRecordVo.setDate(meetingProfile.getStartTime());
-            meetingRecordVo.setLanguage(String.valueOf(meetingProfile.getLanguage()));
-            meetingRecordVo.setStatus(DateTimeUtil.isBefore(meetingProfile.getEndTime(), meetingProfile.getCreateTime()) ? "已结束" : "未开始");
+            meetingRecordVo.setLanguage(meetingProfile.getLanguage());
+            meetingRecordVo.setStatus(meetingProfile.getStatus());
             meetingRecordVo.setReportAddress(meetingProfile.getReportAddress());
             meetingRecordVo.setAudioAddress(meetingProfile.getAudioAddress());
             meetingRecordVoList.add(meetingRecordVo);

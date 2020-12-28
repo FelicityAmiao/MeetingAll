@@ -1,11 +1,14 @@
 package com.group8.meetingall.service;
 
 import com.group8.meetingall.dto.asr.*;
+import com.group8.meetingall.entity.TranslateResultEntity;
 import com.group8.meetingall.exception.ASRException;
+import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.HttpUtil;
 import com.group8.meetingall.utils.JsonUtils;
 import com.group8.meetingall.utils.SignUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +38,10 @@ public class CantoneseASRService {
     private String secretID;
     @Value("${TCASR.secretKey}")
     private String secretKey;
+    @Autowired
+    TranslateResultRepository translateResultRepository;
 
-    public void startConvert() throws IOException {
+    public String startConvert() throws IOException {
         try {
             CreateRecTaskRequestDTO req = CreateRecTaskRequestDTO.builder()
                     .engineModelType(ENGINE_MODLE_TYPE_16K_CA)
@@ -45,16 +50,44 @@ public class CantoneseASRService {
                     .sourceType(1L)
                     .build();
             processVideo(req);
-            CreateRecTaskDTO resp = CreateRecTask(req);
-            DescribeTaskStatusRequestDTO describeTaskStatusRequestDTO = DescribeTaskStatusRequestDTO.builder()
-                    .taskId(resp.getData().getTaskId())
-                    .build();
-            Thread.sleep(10000);
-            DescribeTaskStatusDTO describeTaskStatusDTO = DescribeTaskStatus(describeTaskStatusRequestDTO);
-            System.out.println(JsonUtils.toJson(describeTaskStatusDTO));
-        } catch (ASRException | InterruptedException e) {
+            CreateRecTaskDTO createRecTaskDTO = CreateRecTask(req);
+            String result = getProcessedResult(createRecTaskDTO.getData().getTaskId());
+            TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(result);
+            return translateResultEntity.getUUID();
+        } catch (ASRException e) {
             System.out.println(e.toString());
         }
+        return null;
+    }
+
+
+    private String getProcessedResult(Long taskId) throws ASRException {
+        DescribeTaskStatusRequestDTO describeTaskStatusRequestDTO = DescribeTaskStatusRequestDTO.builder()
+                .taskId(taskId)
+                .build();
+        while (true) {
+            try {
+                System.out.println("sleep a while Zzz");
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            DescribeTaskStatusDTO describeTaskStatusDTO = DescribeTaskStatus(describeTaskStatusRequestDTO);
+            TaskStatusDTO responseData = describeTaskStatusDTO.getData();
+            Long describeTaskStatus = responseData.getStatus();
+            if (describeTaskStatus == 2L) {
+                System.out.println("process finished,translate result is:" + responseData.getResult());
+                break;
+            } else if (describeTaskStatus == 0L) {
+                System.out.println("Task is waiting for process,please wait...");
+            } else if (describeTaskStatus == 1L) {
+                System.out.println("Task is processing,please wait...");
+            } else if (describeTaskStatus == 3L) {
+                System.out.println("Process failed!");
+                throw new ASRException(responseData.getErrorMsg(), describeTaskStatusDTO.getRequestId(), responseData.getStatusStr());
+            }
+        }
+        return DescribeTaskStatus(describeTaskStatusRequestDTO).getData().getResult();
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
