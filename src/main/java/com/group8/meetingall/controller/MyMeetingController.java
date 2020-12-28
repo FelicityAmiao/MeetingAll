@@ -17,23 +17,17 @@ public class MyMeetingController {
     private MyMeetingService meetingService;
 
     @PostMapping
-    private List<MeetingVo> addMeeting(@RequestBody MeetingDto meetingDto){
+    private MeetingVo addMeeting(@RequestBody MeetingDto meetingDto) {
         return meetingService.upsertMeeting(meetingDto);
     }
 
     @GetMapping("/{userId}")
-    private List<MeetingVo> getAllMeetings(@PathVariable(value = "userId") String userId){
-        return meetingService.findAllMeetingsByUserId(userId);
-    }
-
-    @DeleteMapping("/{userId}/{meetingId}")
-    private List<MeetingVo> deleteMeetings(@PathVariable(value = "userId") String userId,
-                                           @PathVariable(value = "meetingId") String meetingId){
-        return meetingService.deleteMeeting(userId, meetingId);
+    private MeetingVo getMeeting(@PathVariable(value = "userId") String userId) {
+        return meetingService.getActiveMeeting(userId);
     }
 
     @GetMapping("/meetingrecords/{user}")
-    private List<MeetingRecordVo> getMeetingRecords(@PathVariable(value = "user") String user){
+    private List<MeetingRecordVo> getMeetingRecords(@PathVariable(value = "user") String user) {
         return meetingService.getMeetingRecords(user);
     }
 }

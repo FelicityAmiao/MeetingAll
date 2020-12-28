@@ -14,6 +14,7 @@ public class MeetingProfile {
     private Integer language;
     private List<Integer> room;
     private String createTime;
+    private String startDate;
     private String startTime;
     private String endTime;
     private String reportAddress;
@@ -22,5 +23,4 @@ public class MeetingProfile {
     private boolean delete;
     private boolean active;
     private String subject;
-//    1 means finished, 0 means not begin
 }
