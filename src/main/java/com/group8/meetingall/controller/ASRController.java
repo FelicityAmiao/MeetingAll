@@ -41,8 +41,9 @@ public class ASRController {
 
     @GetMapping(value = "/convertCantoneseVideo")
     public String convertCantoneseVideo() throws IOException {
-        cantoneseASRService.startConvert();
-        return "success";
+        String UUID = cantoneseASRService.startConvert();
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return "http://"+inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
     @GetMapping(value = "/getTranslateResultFile")
