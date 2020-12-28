@@ -3,7 +3,6 @@ package com.group8.meetingall.service;
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
-import com.group8.meetingall.utils.DateTimeUtil;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.group8.meetingall.utils.Constant.NEW;
+import static com.group8.meetingall.utils.Constant.REPORT_ING;
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
 import static java.util.Objects.nonNull;
 
@@ -48,8 +49,10 @@ public class MyMeetingService {
 
     private void updateOtherMeetingToInActive(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
-        meeting.setActive(false);
-        meetingRepository.upsertMeeting(meeting);
+        if (nonNull(meeting)) {
+            meeting.setActive(false);
+            meetingRepository.upsertMeeting(meeting);
+        }
     }
 
     private MeetingVo convertToMeetingVo(MeetingProfile m) {
@@ -62,8 +65,11 @@ public class MyMeetingService {
         MeetingProfile meetingProfile = new MeetingProfile();
         BeanUtils.copyProperties(meetingDto, meetingProfile);
         meetingProfile.setMeetingId(UUID.randomUUID().toString());
-        meetingProfile.setCreateTime(getCurrentDateTime());
-        meetingProfile.setStatus("新建");
+        String currentDateTime = getCurrentDateTime();
+        meetingProfile.setCreateTime(currentDateTime);
+        meetingProfile.setStartDate(currentDateTime.substring(0, 10));
+        meetingProfile.setStartTime(currentDateTime.substring(11));
+        meetingProfile.setStatus(NEW);
         meetingProfile.setActive(true);
         return meetingProfile;
     }
@@ -71,11 +77,19 @@ public class MyMeetingService {
     public List<MeetingRecordVo> getMeetingRecords(String user) {
         List<MeetingRecordVo> meetingRecordVoList = new ArrayList<>();
         List<MeetingProfile> meetingProfiles = meetingRepository.findAllMeetingsByUserId(user);
-        for(MeetingProfile meetingProfile : meetingProfiles){
+        for (MeetingProfile meetingProfile : meetingProfiles) {
             MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
-            BeanUtils.copyProperties(meetingProfile,meetingRecordVo);
+            BeanUtils.copyProperties(meetingProfile, meetingRecordVo);
             meetingRecordVoList.add(meetingRecordVo);
         }
         return meetingRecordVoList;
+    }
+
+    public MeetingVo generateReport(String meetingId) {
+        MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
+        meeting.setStatus(REPORT_ING);
+        meeting.setReportAddress("");
+        meetingRepository.upsertMeeting(meeting);
+        return convertToMeetingVo(meeting);
     }
 }
