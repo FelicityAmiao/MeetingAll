@@ -1,4 +1,4 @@
-package com.group8.meetingall.service.ASR;
+package com.group8.meetingall.utils;
 
 import com.group8.meetingall.exception.ASRException;
 
@@ -12,9 +12,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public class Sign {
+public class SignUtil {
   private static final Charset UTF8 = StandardCharsets.UTF_8;
-
 
   public static String sha256Hex(byte[] b) throws ASRException {
     MessageDigest md;

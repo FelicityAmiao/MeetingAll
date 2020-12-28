@@ -24,6 +24,7 @@ import java.util.Map;
 
 
 public class HttpUtil {
+    public static final String REQUSET_METHOD_POST = "POST";
 
     public static String post(String url, MultiValueMap<String, String> param) {
         RestTemplate restTemplate = new RestTemplate();

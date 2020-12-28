@@ -2,7 +2,7 @@ package com.group8.meetingall.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.group8.meetingall.dto.ASRAPIResultDto;
+import com.group8.meetingall.dto.asr.ASRAPIResultDto;
 import com.group8.meetingall.entity.TranslateResultEntity;
 import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.EncryptUtil;

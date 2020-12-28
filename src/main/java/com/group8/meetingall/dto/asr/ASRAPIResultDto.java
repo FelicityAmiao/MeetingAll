@@ -1,4 +1,4 @@
-package com.group8.meetingall.dto;
+package com.group8.meetingall.dto.asr;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

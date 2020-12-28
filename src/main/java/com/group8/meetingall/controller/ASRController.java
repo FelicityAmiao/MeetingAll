@@ -1,5 +1,6 @@
 package com.group8.meetingall.controller;
 
+import com.group8.meetingall.service.CantoneseASRService;
 import com.group8.meetingall.service.ASRService;
 import com.group8.meetingall.service.ReportGenerationService;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -27,6 +28,8 @@ public class ASRController {
     @Autowired
     ASRService asrService;
     @Autowired
+    CantoneseASRService cantoneseASRService;
+    @Autowired
     ReportGenerationService reportGenerationService;
 
     @GetMapping(value = "/convert")
@@ -34,6 +37,12 @@ public class ASRController {
         String UUID = asrService.convert();
         InetAddress inetAddress = InetAddress.getLocalHost();
         return "http://"+inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
+    }
+
+    @GetMapping(value = "/convertCantoneseVideo")
+    public String convertCantoneseVideo() throws IOException {
+        cantoneseASRService.startConvert();
+        return "success";
     }
 
     @GetMapping(value = "/getTranslateResultFile")

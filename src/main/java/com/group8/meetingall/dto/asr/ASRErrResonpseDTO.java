@@ -1,4 +1,4 @@
-package com.group8.meetingall.service.ASR;
+package com.group8.meetingall.dto.asr;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class JsonResponseErrModel {
-  @JsonProperty(value = "RequestId")
-  public String requestId;
-  @JsonProperty(value = "Error")
-  public ErrorInfo error;
+public class ASRErrResonpseDTO {
+  @JsonProperty(value = "Response")
+  public ASRErrDTO response;
 }
