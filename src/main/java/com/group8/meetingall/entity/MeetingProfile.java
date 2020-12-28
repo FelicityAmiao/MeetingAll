@@ -22,5 +22,4 @@ public class MeetingProfile {
     private boolean delete;
     private boolean active;
     private String subject;
-//    1 means finished, 0 means not begin
 }
