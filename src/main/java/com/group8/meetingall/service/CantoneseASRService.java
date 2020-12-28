@@ -92,9 +92,7 @@ public class CantoneseASRService {
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
-        String audioFilePath = String.valueOf(new ClassPathResource("\\audio\\guangdonghua.mp3").getInputStream());
-//        String audioFilePath = this.getClass().getResource("/").getPath() + "/audio/guangdonghua.mp3";
-        File file = new File(audioFilePath);
+        File file = new File("/home/meetingall/files/audio/cantonese.mp3");
         FileInputStream inputFile = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         req.setDataLen(file.length());
