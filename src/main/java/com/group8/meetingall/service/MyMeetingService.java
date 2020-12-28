@@ -12,47 +12,49 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
+import static java.util.Objects.nonNull;
 
 @Service
 public class MyMeetingService {
     @Autowired
     private MeetingRepository meetingRepository;
 
-    public List<MeetingVo> findAllMeetingsByUserId(String userId) {
-        List<MeetingProfile> allMeetings = meetingRepository.findAllMeetingsByUserId(userId);
-        return allMeetings.stream().map(this::convertToMeetingVo).collect(Collectors.toList());
+    public MeetingVo getActiveMeeting(String userId) {
+        MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
+        if (nonNull(meeting)) {
+            return convertToMeetingVo(meeting);
+        }
+        return null;
     }
 
-    public List<MeetingVo> upsertMeeting(MeetingDto meetingDto) {
+    public MeetingVo upsertMeeting(MeetingDto meetingDto) {
         MeetingProfile meetingProfile = new MeetingProfile();
-        List<MeetingProfile> allMeetings = new ArrayList<>();
         if (ObjectUtils.isEmpty(meetingDto.getMeetingId())) {
             meetingProfile = createMeeting(meetingDto);
+            updateOtherMeetingToInActive(meetingDto.getUserId());
         } else {
             BeanUtils.copyProperties(meetingDto, meetingProfile);
         }
         boolean flag = meetingRepository.upsertMeeting(meetingProfile);
         if (flag) {
-            allMeetings = meetingRepository.findAllMeetingsByUserId(meetingDto.getUserId());
+            return convertToMeetingVo(meetingProfile);
         }
-        return allMeetings.stream().map(this::convertToMeetingVo).collect(Collectors.toList());
+        return null;
+    }
+
+    private void updateOtherMeetingToInActive(String userId) {
+        MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
+        meeting.setActive(false);
+        meetingRepository.upsertMeeting(meeting);
     }
 
     private MeetingVo convertToMeetingVo(MeetingProfile m) {
         MeetingVo meetingVo = new MeetingVo();
         BeanUtils.copyProperties(m, meetingVo);
-        meetingVo.setTime(Arrays.asList(DateTimeUtil.toLocalDateTimeWithDefaultFormat(m.getStartTime()), DateTimeUtil.toLocalDateTimeWithDefaultFormat(m.getEndTime())));
-        if (DateTimeUtil.isBefore(m.getEndTime(), m.getCreateTime())) {
-            meetingVo.setFinished(true);
-        }else{
-            meetingVo.setFinished(false);
-        }
         return meetingVo;
     }
 
@@ -61,16 +63,9 @@ public class MyMeetingService {
         BeanUtils.copyProperties(meetingDto, meetingProfile);
         meetingProfile.setMeetingId(UUID.randomUUID().toString());
         meetingProfile.setCreateTime(getCurrentDateTime());
+        meetingProfile.setStatus("新建");
+        meetingProfile.setActive(true);
         return meetingProfile;
-    }
-
-    public List<MeetingVo> deleteMeeting(String userId, String meetingId) {
-        boolean flag = meetingRepository.removeMeeting(userId, meetingId);
-        List<MeetingProfile> allMeetings = new ArrayList<>();
-        if (flag) {
-            allMeetings = meetingRepository.findAllMeetingsByUserId(userId);
-        }
-        return allMeetings.stream().map(this::convertToMeetingVo).collect(Collectors.toList());
     }
 
     public List<MeetingRecordVo> getMeetingRecords(String user) {
