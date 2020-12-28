@@ -97,13 +97,11 @@ public class MyMeetingService {
             return null;
         }
         meeting.setStatus(REPORT_ING);
-//        TODO: start generate report by language type
+        String fileName = generateReportName(meeting);
         switch (meeting.getLanguage()) {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
                     String uuid = asrService.convert(meeting.getAudioAddress());
-                    String fileName = "Meeting Report " + meeting.getSubject() + SPACE + meeting.getRoom() + SPACE + meeting.getStartDate()+ ".docx";
-                    fileName = fileName.replaceAll(SPACE, UNDERLINE);
                     highFrequencyService.generateHighlightWordFile(uuid, fileName);
                     meeting.setReportAddress(fileName);
                     meeting.setStatus(REPORT_FINISHED);
@@ -113,10 +111,17 @@ public class MyMeetingService {
                 meetingRepository.upsertMeeting(meeting);
                 return convertToMeetingVo(meeting);
             case 2:
+                //TODO: generate cantonese report
                 break;
             default:
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    private String generateReportName(MeetingProfile meetingProfile) {
+        String reportName = "Meeting Report " + meetingProfile.getSubject() + SPACE + meetingProfile.getRoom().get(0) + SPACE + meetingProfile.getRoom().get(1) + SPACE + meetingProfile.getStartDate() + ".docx";
+        reportName = reportName.replaceAll(SPACE, UNDERLINE);
+        return reportName;
     }
 }

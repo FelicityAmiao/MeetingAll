@@ -23,7 +23,6 @@ public class FileController {
     public void downloadFile(HttpServletResponse response, @PathVariable(value = "file") String fileName) throws IOException {
         OutputStream out = null;
         String filteType = fileName.substring(fileName.lastIndexOf(".")+1);
-        String path = reportPath + "/" + fileName;
         String contentType = "application/msword;charset=UTF-8";
         if("wav".equalsIgnoreCase(filteType)){
             path = audioPath + "/" + fileName;
@@ -40,7 +39,7 @@ public class FileController {
             }
             response.setContentType(contentType);
             response.setHeader("Content-Disposition", "attachment;filename="
-                    .concat(URLEncoder.encode("Meeting Report - " + fileName, "UTF-8")
+                    .concat(URLEncoder.encode(fileName, "UTF-8")
                             .replaceAll("\\+", "%20")));
         } catch (IOException e) {
             e.printStackTrace();
