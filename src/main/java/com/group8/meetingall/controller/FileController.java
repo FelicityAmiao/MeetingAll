@@ -20,7 +20,7 @@ public class FileController {
     @GetMapping(value = "/download/{file}")
     public void getTranslateResultFile(HttpServletResponse response, @PathVariable(value = "file") String fileName) throws IOException {
         OutputStream out = null;
-        String path = reportPath + "/" + fileName;
+        String path = reportPath + fileName;
         try {
             File file = new File(path);
             FileInputStream fis = new FileInputStream(file);
