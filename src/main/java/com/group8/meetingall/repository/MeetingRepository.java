@@ -24,9 +24,8 @@ public class MeetingRepository {
         return mongoTemplate.find(query, MeetingProfile.class, "meeting_profile");
     }
 
-    public MeetingProfile findMeetingByUserIdAndMeetingId(String userId, String meetingId) {
+    public MeetingProfile findMeetingByMeetingId(String meetingId) {
         Document criteria = new Document();
-        criteria.put("userId", userId);
         criteria.put("meetingId", meetingId);
         criteria.put("delete", false);
         BasicQuery query = new BasicQuery(criteria);
