@@ -32,7 +32,7 @@ public class FileController {
             }
             response.setContentType("application/msword;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename="
-                    .concat(URLEncoder.encode("Meeting Report - " + fileName + ".docx", "UTF-8")
+                    .concat(URLEncoder.encode(fileName, "UTF-8")
                             .replaceAll("\\+", "%20")));
         } catch (IOException e) {
             e.printStackTrace();
