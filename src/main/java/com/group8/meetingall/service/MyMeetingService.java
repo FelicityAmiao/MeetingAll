@@ -13,16 +13,22 @@ import org.springframework.util.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-import static com.group8.meetingall.utils.Constant.NEW;
-import static com.group8.meetingall.utils.Constant.REPORT_ING;
+import static com.group8.meetingall.utils.Constant.*;
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
 import static java.util.Objects.nonNull;
 
 @Service
 public class MyMeetingService {
     @Autowired
+    CantoneseASRService cantoneseASRService;
+    @Autowired
+    HighFrequencyService highFrequencyService;
+    @Autowired
     private MeetingRepository meetingRepository;
+    @Autowired
+    private ASRService asrService;
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -87,9 +93,30 @@ public class MyMeetingService {
 
     public MeetingVo generateReport(String meetingId) {
         MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
+        if (meeting == null) {
+            return null;
+        }
         meeting.setStatus(REPORT_ING);
-        meeting.setReportAddress("");
-        meetingRepository.upsertMeeting(meeting);
+//        TODO: start generate report by language type
+        switch (meeting.getLanguage()) {
+            case 1:
+                CompletableFuture.supplyAsync(() -> {
+                    String uuid = asrService.convert(meeting.getAudioAddress());
+                    String fileName = "Meeting Report " + meeting.getSubject() + SPACE + meeting.getRoom() + SPACE + meeting.getStartDate()+ ".docx";
+                    fileName = fileName.replaceAll(SPACE, UNDERLINE);
+                    highFrequencyService.generateHighlightWordFile(uuid, fileName);
+                    meeting.setReportAddress(fileName);
+                    meeting.setStatus(REPORT_FINISHED);
+                    meetingRepository.upsertMeeting(meeting);
+                    return fileName;
+                });
+                meetingRepository.upsertMeeting(meeting);
+                return convertToMeetingVo(meeting);
+            case 2:
+                break;
+            default:
+                break;
+        }
         return convertToMeetingVo(meeting);
     }
 }

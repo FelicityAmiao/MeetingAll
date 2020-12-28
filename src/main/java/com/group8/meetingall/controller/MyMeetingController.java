@@ -26,6 +26,11 @@ public class MyMeetingController {
         return meetingService.getActiveMeeting(userId);
     }
 
+    @GetMapping("/report/{meetingId}")
+    private MeetingVo generateReport(@PathVariable(value = "meetingId") String meetingId) {
+        return meetingService.generateReport(meetingId);
+    }
+
     @GetMapping("/meetingrecords/{user}")
     private List<MeetingRecordVo> getMeetingRecords(@PathVariable(value = "user") String user) {
         return meetingService.getMeetingRecords(user);

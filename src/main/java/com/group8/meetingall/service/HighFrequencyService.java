@@ -2,13 +2,16 @@ package com.group8.meetingall.service;
 
 import com.group8.meetingall.highfrequency.InverseDocumentFrequency;
 import com.group8.meetingall.highfrequency.TermFrequency;
-import com.group8.meetingall.service.HighFrequencyService;
+import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.HighlightUtil;
 import com.group8.meetingall.vo.Keyword;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,8 +22,12 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class HighFrequencyService {
+    @Autowired
+    TranslateResultRepository translateResultRepository;
     @Value("${keyword.percent}")
     private double percent;
+    @Value("${filePath.report}")
+    private String reportPath;
 
     public List<Keyword> getHighFrequencyWords(String text, Integer count) {
         if (count == null) {
@@ -42,17 +49,26 @@ public class HighFrequencyService {
         return keywordList.stream().sorted(Comparator.comparing(Keyword::getFrequency).reversed()).collect(Collectors.toList());
     }
 
-    public XWPFDocument generateHighlightWordFile(String text) {
-        if (nonNull(text) && text.length() > 0) {
-            int count = (int) Math.ceil(text.length() * percent);
-            List<Keyword> highFrequencyWords = getHighFrequencyWords(text, count);
+    public void generateHighlightWordFile(String uuid, String fileName) {
+        String reportContent = translateResultRepository.getFileContent(uuid);
+        if (nonNull(reportContent) && reportContent.length() > 0) {
+            int count = (int) Math.ceil(reportContent.length() * percent);
+            List<Keyword> highFrequencyWords = getHighFrequencyWords(reportContent, count);
             List<String> words = highFrequencyWords.stream().map(Keyword::getWord).collect(Collectors.toList());
             try {
-                return HighlightUtil.createWord(text, words);
+                XWPFDocument word = HighlightUtil.createWord(reportContent, words);
+                String wholeFilePath = reportPath + fileName;
+                File file = new File(reportPath);
+                if (!file.exists() && !file.isDirectory()) {
+                    file.mkdirs();
+                }
+                File targetFile = new File(wholeFilePath);
+                FileOutputStream out = new FileOutputStream(targetFile);
+                word.write(out);
+                out.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return null;
     }
 }

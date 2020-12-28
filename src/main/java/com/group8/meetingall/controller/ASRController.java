@@ -31,10 +31,11 @@ public class ASRController {
     CantoneseASRService cantoneseASRService;
     @Autowired
     ReportGenerationService reportGenerationService;
+    public static final String AUDIO_FILE = "test.mp3";
 
     @GetMapping(value = "/convert")
     public String convert() throws UnknownHostException {
-        String UUID = asrService.convert();
+        String UUID = asrService.convert(AUDIO_FILE);
         InetAddress inetAddress = InetAddress.getLocalHost();
         return "http://"+inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }

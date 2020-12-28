@@ -27,6 +27,8 @@ import java.util.Map;
 public class ASRService {
     public static final int SLICE_SICE = 10485760;// 10M
     public static final String AUDIO_FILE_PATH = ASRService.class.getResource("/").getPath() + "/audio/test.mp3";
+    @Autowired
+    TranslateResultRepository translateResultRepository;
     @Value("${LFASR.appID}")
     private String appID;
     @Value("${LFASR.secretKey}")
@@ -43,12 +45,16 @@ public class ASRService {
     private String getProgressURL;
     @Value("${LFASR.getResultURL}")
     private String getResultURL;
-    @Autowired
-    TranslateResultRepository translateResultRepository;
+    @Value("${filePath.audio}")
+    private String audioPath;
 
-    public String convert() {
+    public String convert(String fileName) {
         try {
-            File audio = new File(AUDIO_FILE_PATH);
+            File file = new File(audioPath);
+            if (!file.exists() && !file.isDirectory()) {
+                file.mkdirs();
+            }
+            File audio = new File(audioPath + fileName);
             FileInputStream fis = new FileInputStream(audio);
             // 预处理
             String taskId = prepare(audio);

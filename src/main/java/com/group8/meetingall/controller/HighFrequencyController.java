@@ -5,6 +5,7 @@ import com.group8.meetingall.vo.Keyword;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,8 @@ public class HighFrequencyController {
 
     @Autowired
     private HighFrequencyService highFrequencyService;
+    @Value("${filePath.report}")
+    private String reportPath;
 
     @PostMapping("/highFrequencyWords")
     public List<Keyword> getHighFrequencyWords(@RequestParam String text, @RequestParam Integer count) {
@@ -47,32 +50,10 @@ public class HighFrequencyController {
         return null;
     }
 
-    @GetMapping("/{filename}/{filetype}")
-    public String highLightKeyWords(@PathVariable(value = "filename") String fileName,
-                                    @PathVariable(value = "filetype") String fileType) {
-        String path = this.getClass().getResource("/files").getPath() + "/" + fileName + "." + fileType;
-        try {
-            File file = new File(path);
-            FileInputStream fis = new FileInputStream(file);
-            XWPFDocument xdoc = new XWPFDocument(fis);
-            XWPFWordExtractor extractor = new XWPFWordExtractor(xdoc);
-            String text = extractor.getText();
-            fis.close();
-            XWPFDocument document = highFrequencyService.generateHighlightWordFile(text);
-            FileOutputStream out = new FileOutputStream(new File(path.replace(".","-highlight.")));
-            document.write(out);
-            out.close();
-            return fileName + "-highlight." + fileType;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @GetMapping(value = "/download/{file}")
     public void getTranslateResultFile(HttpServletResponse response, @PathVariable(value = "file") String fileName) throws IOException {
         OutputStream out = null;
-        String path = this.getClass().getResource("/files").getPath() + "/" + fileName;
+        String path = reportPath + "/" + fileName;
         try {
             File file = new File(path);
             FileInputStream fis = new FileInputStream(file);
