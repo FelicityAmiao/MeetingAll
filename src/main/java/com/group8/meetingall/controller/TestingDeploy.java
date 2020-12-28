@@ -16,4 +16,9 @@ public class TestingDeploy {
   public String greet() {
     return "Hello guys! Have a Nice Day!" + resultRepository.getFileContent("3b24a035-3bf0-49fb-afe6-8c318829fd5a");
   }
+
+  @RequestMapping()
+  public String test() {
+    return "Hello guys! Have a Nice Day!";
+  }
 }
