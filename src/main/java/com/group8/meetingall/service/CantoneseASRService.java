@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
@@ -90,7 +91,8 @@ public class CantoneseASRService {
                 throw new ASRException(responseData.getErrorMsg(), describeTaskStatusDTO.getRequestId(), responseData.getStatusStr());
             }
         }
-        return DescribeTaskStatus(describeTaskStatusRequestDTO).getData().getResult();
+        String result = DescribeTaskStatus(describeTaskStatusRequestDTO).getData().getResult();
+        return result.substring(result.indexOf("]") + 3);
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
