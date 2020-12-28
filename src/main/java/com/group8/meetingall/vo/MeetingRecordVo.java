@@ -12,4 +12,5 @@ public class MeetingRecordVo {
     private String status;
     private String reportAddress;
     private String audioAddress;
+    private String subject;
 }

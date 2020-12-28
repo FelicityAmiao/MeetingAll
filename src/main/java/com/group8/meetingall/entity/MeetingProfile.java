@@ -14,6 +14,7 @@ public class MeetingProfile {
     private Integer language;
     private List<Integer> room;
     private String createTime;
+    private String startDate;
     private String startTime;
     private String endTime;
     private String reportAddress;

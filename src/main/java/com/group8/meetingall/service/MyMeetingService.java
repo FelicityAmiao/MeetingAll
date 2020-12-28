@@ -73,12 +73,7 @@ public class MyMeetingService {
         List<MeetingProfile> meetingProfiles = meetingRepository.findAllMeetingsByUserId(user);
         for(MeetingProfile meetingProfile : meetingProfiles){
             MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
-            meetingRecordVo.setRoom(meetingProfile.getRoom());
-            meetingRecordVo.setDate(meetingProfile.getStartTime());
-            meetingRecordVo.setLanguage(meetingProfile.getLanguage());
-            meetingRecordVo.setStatus(meetingProfile.getStatus());
-            meetingRecordVo.setReportAddress(meetingProfile.getReportAddress());
-            meetingRecordVo.setAudioAddress(meetingProfile.getAudioAddress());
+            BeanUtils.copyProperties(meetingProfile,meetingRecordVo);
             meetingRecordVoList.add(meetingRecordVo);
         }
         return meetingRecordVoList;
