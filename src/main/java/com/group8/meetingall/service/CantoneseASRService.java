@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
@@ -39,6 +40,8 @@ public class CantoneseASRService {
     private String secretID;
     @Value("${TCASR.secretKey}")
     private String secretKey;
+    @Value("${filePath.audio}")
+    private String audioPath;
     @Autowired
     TranslateResultRepository translateResultRepository;
 
@@ -88,11 +91,12 @@ public class CantoneseASRService {
                 throw new ASRException(responseData.getErrorMsg(), describeTaskStatusDTO.getRequestId(), responseData.getStatusStr());
             }
         }
-        return DescribeTaskStatus(describeTaskStatusRequestDTO).getData().getResult();
+        String result = DescribeTaskStatus(describeTaskStatusRequestDTO).getData().getResult();
+        return result.substring(result.indexOf("]") + 3);
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
-        File file = new File("/home/meetingall/files/audio/cantonese.mp3");
+        File file = new File(audioPath+"cantonese.mp3");
         FileInputStream inputFile = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         req.setDataLen(file.length());
