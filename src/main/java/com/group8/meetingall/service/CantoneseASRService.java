@@ -39,6 +39,8 @@ public class CantoneseASRService {
     private String secretID;
     @Value("${TCASR.secretKey}")
     private String secretKey;
+    @Value("${filePath.audio}")
+    private String audioPath;
     @Autowired
     TranslateResultRepository translateResultRepository;
 
@@ -92,7 +94,7 @@ public class CantoneseASRService {
     }
 
     public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
-        File file = new File("/home/meetingall/files/audio/cantonese.mp3");
+        File file = new File(audioPath+"cantonese.mp3");
         FileInputStream inputFile = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         req.setDataLen(file.length());
