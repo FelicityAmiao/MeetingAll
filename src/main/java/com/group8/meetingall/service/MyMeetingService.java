@@ -7,10 +7,17 @@ import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +36,8 @@ public class MyMeetingService {
     private MeetingRepository meetingRepository;
     @Autowired
     private ASRService asrService;
+    @Value("${filePath.audio}")
+    private String audioPath;
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -118,5 +127,25 @@ public class MyMeetingService {
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String format = sdf.format(new Date());
+        File folder = new File(audioPath);
+        if (!folder.isDirectory()){
+            folder.mkdir();
+        }
+        String newName = format + "-" + UUID.randomUUID().toString() + ".wav";
+
+        try {
+            uploadFile.transferTo(new File(folder, newName));
+            Update update = new Update();
+            update.set("audioAddress", newName);
+            meetingRepository.findByIdAndUpdate(meetingId, update);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
