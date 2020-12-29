@@ -1,5 +1,8 @@
 server:
   port: 8077
+  ssl:
+    key-store: /var/ssl/4982052_www.meetingall.info.jks
+    key-password: MJ168hkg
   servlet:
     context-path: /api
 spring:
