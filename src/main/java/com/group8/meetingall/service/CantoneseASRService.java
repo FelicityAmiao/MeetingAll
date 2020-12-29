@@ -10,11 +10,9 @@ import com.group8.meetingall.utils.SignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
@@ -32,6 +30,8 @@ import static com.group8.meetingall.utils.HttpUtil.REQUSET_METHOD_POST;
 @Service
 @Slf4j
 public class CantoneseASRService {
+    @Autowired
+    TranslateResultRepository translateResultRepository;
     @Value("${TCASR.host}")
     private String host;
     @Value("${TCASR.url}")
@@ -42,10 +42,8 @@ public class CantoneseASRService {
     private String secretKey;
     @Value("${filePath.audio}")
     private String audioPath;
-    @Autowired
-    TranslateResultRepository translateResultRepository;
 
-    public String startConvert() throws IOException {
+    public String startConvert(String fileName) {
         try {
             CreateRecTaskRequestDTO req = CreateRecTaskRequestDTO.builder()
                     .engineModelType(ENGINE_MODLE_TYPE_16K_CA)
@@ -53,13 +51,13 @@ public class CantoneseASRService {
                     .resTextFormat(0L)
                     .sourceType(1L)
                     .build();
-            processVideo(req);
+            processVideo(req, fileName);
             CreateRecTaskDTO createRecTaskDTO = CreateRecTask(req);
             String result = getProcessedResult(createRecTaskDTO.getData().getTaskId());
             TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(result);
             return translateResultEntity.getUUID();
-        } catch (ASRException e) {
-            System.out.println(e.toString());
+        } catch (ASRException | IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -71,7 +69,7 @@ public class CantoneseASRService {
                 .build();
         while (true) {
             try {
-                System.out.println("sleep a while Zzz");
+                log.info("sleep a while Zzz");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -80,14 +78,14 @@ public class CantoneseASRService {
             TaskStatusDTO responseData = describeTaskStatusDTO.getData();
             Long describeTaskStatus = responseData.getStatus();
             if (describeTaskStatus == 2L) {
-                System.out.println("process finished,translate result is:" + responseData.getResult());
+                log.info("process finished,translate result is:" + responseData.getResult());
                 break;
             } else if (describeTaskStatus == 0L) {
-                System.out.println("Task is waiting for process,please wait...");
+                log.info("Task is waiting for process,please wait...");
             } else if (describeTaskStatus == 1L) {
-                System.out.println("Task is processing,please wait...");
+                log.info("Task is processing,please wait...");
             } else if (describeTaskStatus == 3L) {
-                System.out.println("Process failed!");
+                log.info("Process failed!");
                 throw new ASRException(responseData.getErrorMsg(), describeTaskStatusDTO.getRequestId(), responseData.getStatusStr());
             }
         }
@@ -95,8 +93,8 @@ public class CantoneseASRService {
         return result.substring(result.indexOf("]") + 3);
     }
 
-    public void processVideo(CreateRecTaskRequestDTO req) throws IOException {
-        File file = new File(audioPath+"cantonese.mp3");
+    public void processVideo(CreateRecTaskRequestDTO req, String fileName) throws IOException {
+        File file = new File(audioPath + fileName);
         FileInputStream inputFile = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         req.setDataLen(file.length());

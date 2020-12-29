@@ -1,10 +1,13 @@
 package com.group8.meetingall.service;
 
+import com.group8.meetingall.controller.MeetingRoomController;
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ public class MyMeetingService {
     private MeetingRepository meetingRepository;
     @Autowired
     private ASRService asrService;
+
+    Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -107,21 +112,31 @@ public class MyMeetingService {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
                     String uuid = asrService.convert(meeting.getAudioAddress());
-                    highFrequencyService.generateHighlightWordFile(uuid, fileName);
-                    meeting.setReportAddress(fileName);
-                    meeting.setStatus(REPORT_FINISHED);
-                    meetingRepository.upsertMeeting(meeting);
+                    generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
                 meetingRepository.upsertMeeting(meeting);
                 return convertToMeetingVo(meeting);
             case 2:
-                //TODO: generate cantonese report
-                break;
+                CompletableFuture.supplyAsync(() -> {
+                    String uuid = cantoneseASRService.startConvert(meeting.getAudioAddress());
+                    generateWordFile(meeting, fileName, uuid);
+                    return fileName;
+                });
+                boolean flag = meetingRepository.upsertMeeting(meeting);
+                logger.info("update meeting flag: " + flag);
+                return convertToMeetingVo(meeting);
             default:
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {
+        highFrequencyService.generateHighlightWordFile(uuid, fileName);
+        meeting.setReportAddress(fileName);
+        meeting.setStatus(REPORT_FINISHED);
+        meetingRepository.upsertMeeting(meeting);
     }
 
     private String generateReportName(MeetingProfile meetingProfile) {

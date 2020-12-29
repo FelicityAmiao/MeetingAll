@@ -42,7 +42,7 @@ public class ASRController {
 
     @GetMapping(value = "/convertCantoneseVideo")
     public String convertCantoneseVideo() throws IOException {
-        String UUID = cantoneseASRService.startConvert();
+        String UUID = cantoneseASRService.startConvert("cantonese.mp3");
         return "http://www.meetingall.info" + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
