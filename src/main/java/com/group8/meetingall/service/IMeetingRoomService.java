@@ -1,7 +1,6 @@
 package com.group8.meetingall.service;
 
 import com.group8.meetingall.entity.MeetingRoom;
-import com.group8.meetingall.vo.MeetingRoomVo;
 
 import java.util.List;
 
