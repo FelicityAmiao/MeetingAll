@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class MeetingRoom {
     @Id
     private String id;
+    private String roomId;
     private String office;
     private String room;
     private String currentStatus;
