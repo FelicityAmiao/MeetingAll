@@ -1,8 +1,8 @@
 server:
   port: 8077
-#  ssl:
-#    key-store: /var/ssl/4982052_www.meetingall.info.pfx
-#    key-password: H7wY38tj
+  ssl:
+    key-store: /var/ssl/4982052_www.meetingall.info.pfx
+    key-password: H7wY38tj
   servlet:
     context-path: /api
 spring:
