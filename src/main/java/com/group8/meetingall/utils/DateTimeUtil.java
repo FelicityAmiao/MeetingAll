@@ -1,8 +1,12 @@
 package com.group8.meetingall.utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static com.group8.meetingall.utils.Constant.YYYY_MMM_DD_HH_MM_E;
 import static java.util.Objects.isNull;
@@ -32,5 +36,13 @@ public class DateTimeUtil {
         assert startTime != null;
         assert endTime != null;
         return startTime.isBefore(endTime);
+    }
+
+    public static String getOffsetTime(Integer offsetMinute) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date now = new Date();
+        long time = offsetMinute*60*1000;
+        Date afterDate = new Date(now .getTime() + time);
+        return sdf.format(afterDate );
     }
 }
