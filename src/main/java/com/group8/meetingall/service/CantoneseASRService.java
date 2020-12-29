@@ -69,7 +69,7 @@ public class CantoneseASRService {
                 .build();
         while (true) {
             try {
-                System.out.println("sleep a while Zzz");
+                log.info("sleep a while Zzz");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -78,14 +78,14 @@ public class CantoneseASRService {
             TaskStatusDTO responseData = describeTaskStatusDTO.getData();
             Long describeTaskStatus = responseData.getStatus();
             if (describeTaskStatus == 2L) {
-                System.out.println("process finished,translate result is:" + responseData.getResult());
+                log.info("process finished,translate result is:" + responseData.getResult());
                 break;
             } else if (describeTaskStatus == 0L) {
-                System.out.println("Task is waiting for process,please wait...");
+                log.info("Task is waiting for process,please wait...");
             } else if (describeTaskStatus == 1L) {
-                System.out.println("Task is processing,please wait...");
+                log.info("Task is processing,please wait...");
             } else if (describeTaskStatus == 3L) {
-                System.out.println("Process failed!");
+                log.info("Process failed!");
                 throw new ASRException(responseData.getErrorMsg(), describeTaskStatusDTO.getRequestId(), responseData.getStatusStr());
             }
         }
