@@ -12,4 +12,5 @@ public class MeetingRoom {
     private String office;
     private String room;
     private String currentStatus;
+    private boolean isDeviceStarted;
 }
