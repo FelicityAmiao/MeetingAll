@@ -44,3 +44,8 @@ logging:
 filePath:
   audio: D:/meetingall/files/audio/
   report: D:/meetingall/files/report/
+
+email:
+  hostName: "smtp.qq.com"
+  account: "547169735@qq.com"
+  authorizedCode: "oruekwkmxznfbdce"

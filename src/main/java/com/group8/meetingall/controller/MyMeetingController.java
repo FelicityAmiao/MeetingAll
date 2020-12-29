@@ -1,12 +1,17 @@
 package com.group8.meetingall.controller;
 
 import com.group8.meetingall.dto.MeetingDto;
+import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.service.MyMeetingService;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @CrossOrigin
@@ -34,5 +39,10 @@ public class MyMeetingController {
     @GetMapping("/meetingrecords/{user}")
     private List<MeetingRecordVo> getMeetingRecords(@PathVariable(value = "user") String user) {
         return meetingService.getMeetingRecords(user);
+    }
+
+    @PostMapping(value = "/upload/audio")
+    public ResponseEntity<Object> saveVoiceRecord(@RequestParam("attachmentFile") MultipartFile uploadFile, @RequestParam("meetingId") String meetingId , HttpServletRequest request){
+        return new ResponseEntity<Object>(meetingService.saveVoiceRecord(uploadFile, meetingId), HttpStatus.OK);
     }
 }

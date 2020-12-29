@@ -44,3 +44,8 @@ logging:
 filePath:
   audio: /home/meetingall/files/audio/
   report: /home/meetingall/files/report/
+
+email:
+  hostName: "smtp.163.com"
+  account: "zhuzhuxia96@126.com"
+  authorizedCode: "HNCSGCOSUEDRVJGU"
