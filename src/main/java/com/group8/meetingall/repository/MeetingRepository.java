@@ -50,6 +50,7 @@ public class MeetingRepository {
             mongoTemplate.upsert(query, Update.fromDocument(Document.parse(JSON.toJSONString(meetingProfile))), "meeting_profile");
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(e.toString());
             return false;
         }
         return true;

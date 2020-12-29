@@ -118,7 +118,8 @@ public class MyMeetingService {
                     generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
-                meetingRepository.upsertMeeting(meeting);
+                boolean flag = meetingRepository.upsertMeeting(meeting);
+                System.out.println("flag: " + flag);
                 return convertToMeetingVo(meeting);
             default:
                 break;
