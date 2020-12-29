@@ -3,6 +3,8 @@ package com.group8.meetingall.repository;
 import com.alibaba.fastjson.JSON;
 import com.group8.meetingall.entity.MeetingProfile;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
@@ -15,6 +17,7 @@ import java.util.List;
 public class MeetingRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
+    Logger logger = LoggerFactory.getLogger(MeetingRepository.class);
 
     public List<MeetingProfile> findAllMeetingsByUserId(String userId) {
         Document criteria = new Document();
@@ -50,7 +53,7 @@ public class MeetingRepository {
             mongoTemplate.upsert(query, Update.fromDocument(Document.parse(JSON.toJSONString(meetingProfile))), "meeting_profile");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.toString());
+            logger.info(e.toString());
             return false;
         }
         return true;

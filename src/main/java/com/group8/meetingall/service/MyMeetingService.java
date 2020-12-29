@@ -1,10 +1,13 @@
 package com.group8.meetingall.service;
 
+import com.group8.meetingall.controller.MeetingRoomController;
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ public class MyMeetingService {
     private MeetingRepository meetingRepository;
     @Autowired
     private ASRService asrService;
+
+    Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -119,7 +124,7 @@ public class MyMeetingService {
                     return fileName;
                 });
                 boolean flag = meetingRepository.upsertMeeting(meeting);
-                System.out.println("flag: " + flag);
+                logger.info("update meeting flag: " + flag);
                 return convertToMeetingVo(meeting);
             default:
                 break;
