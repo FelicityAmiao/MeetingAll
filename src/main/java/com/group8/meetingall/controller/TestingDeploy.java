@@ -21,13 +21,17 @@ public class TestingDeploy {
     @Autowired
     private SimpMessageSendingOperations simpMessageSendingOperations;
 
-    @RequestMapping("/hello")
-    public String greet() {
-//    return "Hello guys! Have a Nice Day!" + resultRepository.getFileContent("3b24a035-3bf0-49fb-afe6-8c318829fd5a");
+    @RequestMapping("/websocket")
+    public String testWebSocket() {
         MeetingRoom meetingRoom = new MeetingRoom("1", "f", "1", "4");
         String s = JsonUtils.toJson(meetingRoom);
         simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", s);
         return s;
+    }
+
+    @RequestMapping("/hello")
+    public String greet() {
+        return "Hello guys! Have a Nice Day!" + resultRepository.getFileContent("3b24a035-3bf0-49fb-afe6-8c318829fd5a");
     }
 
     @RequestMapping()
