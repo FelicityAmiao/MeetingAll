@@ -107,21 +107,30 @@ public class MyMeetingService {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
                     String uuid = asrService.convert(meeting.getAudioAddress());
-                    highFrequencyService.generateHighlightWordFile(uuid, fileName);
-                    meeting.setReportAddress(fileName);
-                    meeting.setStatus(REPORT_FINISHED);
-                    meetingRepository.upsertMeeting(meeting);
+                    generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
                 meetingRepository.upsertMeeting(meeting);
                 return convertToMeetingVo(meeting);
             case 2:
-                //TODO: generate cantonese report
-                break;
+                CompletableFuture.supplyAsync(() -> {
+                    String uuid = cantoneseASRService.startConvert(meeting.getAudioAddress());
+                    generateWordFile(meeting, fileName, uuid);
+                    return fileName;
+                });
+                meetingRepository.upsertMeeting(meeting);
+                return convertToMeetingVo(meeting);
             default:
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {
+        highFrequencyService.generateHighlightWordFile(uuid, fileName);
+        meeting.setReportAddress(fileName);
+        meeting.setStatus(REPORT_FINISHED);
+        meetingRepository.upsertMeeting(meeting);
     }
 
     private String generateReportName(MeetingProfile meetingProfile) {
