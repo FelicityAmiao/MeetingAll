@@ -10,10 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +41,8 @@ public class MyMeetingService {
     private MeetingRepository meetingRepository;
     @Autowired
     private ASRService asrService;
+    @Value("${filePath.audio}")
+    private String audioPath;
 
     Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
@@ -143,5 +152,25 @@ public class MyMeetingService {
         String reportName = "Meeting Report " + meetingProfile.getSubject() + SPACE + meetingProfile.getRoom().get(0) + SPACE + meetingProfile.getRoom().get(1) + SPACE + meetingProfile.getStartDate() + ".docx";
         reportName = reportName.replaceAll(SPACE, UNDERLINE);
         return reportName;
+    }
+    
+    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String format = sdf.format(new Date());
+        File folder = new File(audioPath);
+        if (!folder.isDirectory()){
+            folder.mkdir();
+        }
+        String newName = format + "-" + UUID.randomUUID().toString() + ".wav";
+
+        try {
+            uploadFile.transferTo(new File(folder, newName));
+            Update update = new Update();
+            update.set("audioAddress", newName);
+            meetingRepository.findByIdAndUpdate(meetingId, update);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

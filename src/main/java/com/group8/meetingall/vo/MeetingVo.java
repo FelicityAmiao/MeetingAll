@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class MeetingVo {
+    private String id;
     private String userId;
     private String meetingId;
     private Integer language;
