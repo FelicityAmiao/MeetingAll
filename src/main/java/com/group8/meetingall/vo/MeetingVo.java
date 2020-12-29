@@ -14,6 +14,8 @@ public class MeetingVo {
     private List<Integer> room;
     private String createTime;
     private String startTime;
+    private String startDate;
+    private Double duration;
     private String endTime;
     private boolean isActive;
     private String status;

@@ -1,10 +1,13 @@
 package com.group8.meetingall.service;
 
+import com.group8.meetingall.controller.MeetingRoomController;
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +21,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.group8.meetingall.utils.Constant.*;
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
@@ -38,6 +43,8 @@ public class MyMeetingService {
     private ASRService asrService;
     @Value("${filePath.audio}")
     private String audioPath;
+
+    Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -97,7 +104,10 @@ public class MyMeetingService {
             BeanUtils.copyProperties(meetingProfile, meetingRecordVo);
             meetingRecordVoList.add(meetingRecordVo);
         }
-        return meetingRecordVoList;
+        return meetingRecordVoList.stream()
+                .sorted(Comparator.comparing(MeetingRecordVo::getStartDate))
+                .sorted(Comparator.comparing(MeetingRecordVo::getStartTime))
+                .collect(Collectors.toList());
     }
 
     public MeetingVo generateReport(String meetingId) {
@@ -106,29 +116,44 @@ public class MyMeetingService {
             return null;
         }
         meeting.setStatus(REPORT_ING);
-//        TODO: start generate report by language type
+        String fileName = generateReportName(meeting);
         switch (meeting.getLanguage()) {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
                     String uuid = asrService.convert(meeting.getAudioAddress());
-                    String fileName = "Meeting Report " + meeting.getSubject() + SPACE + meeting.getRoom() + SPACE + meeting.getStartDate()+ ".docx";
-                    fileName = fileName.replaceAll(SPACE, UNDERLINE);
-                    highFrequencyService.generateHighlightWordFile(uuid, fileName);
-                    meeting.setReportAddress(fileName);
-                    meeting.setStatus(REPORT_FINISHED);
-                    meetingRepository.upsertMeeting(meeting);
+                    generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
                 meetingRepository.upsertMeeting(meeting);
                 return convertToMeetingVo(meeting);
             case 2:
-                break;
+                CompletableFuture.supplyAsync(() -> {
+                    String uuid = cantoneseASRService.startConvert(meeting.getAudioAddress());
+                    generateWordFile(meeting, fileName, uuid);
+                    return fileName;
+                });
+                boolean flag = meetingRepository.upsertMeeting(meeting);
+                logger.info("update meeting flag: " + flag);
+                return convertToMeetingVo(meeting);
             default:
                 break;
         }
         return convertToMeetingVo(meeting);
     }
 
+    private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {
+        highFrequencyService.generateHighlightWordFile(uuid, fileName);
+        meeting.setReportAddress(fileName);
+        meeting.setStatus(REPORT_FINISHED);
+        meetingRepository.upsertMeeting(meeting);
+    }
+
+    private String generateReportName(MeetingProfile meetingProfile) {
+        String reportName = "Meeting Report " + meetingProfile.getSubject() + SPACE + meetingProfile.getRoom().get(0) + SPACE + meetingProfile.getRoom().get(1) + SPACE + meetingProfile.getStartDate() + ".docx";
+        reportName = reportName.replaceAll(SPACE, UNDERLINE);
+        return reportName;
+    }
+    
     public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String format = sdf.format(new Date());

@@ -1,7 +1,7 @@
 package com.group8.meetingall.controller;
 
-import com.group8.meetingall.service.CantoneseASRService;
 import com.group8.meetingall.service.ASRService;
+import com.group8.meetingall.service.CantoneseASRService;
 import com.group8.meetingall.service.ReportGenerationService;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +37,13 @@ public class ASRController {
     public String convert() throws UnknownHostException {
         String UUID = asrService.convert(AUDIO_FILE);
         InetAddress inetAddress = InetAddress.getLocalHost();
-        return "http://"+inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
+        return "http://" + inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
     @GetMapping(value = "/convertCantoneseVideo")
     public String convertCantoneseVideo() throws IOException {
-        String UUID = cantoneseASRService.startConvert();
-        InetAddress inetAddress = InetAddress.getLocalHost();
-        return "http://"+inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
+        String UUID = cantoneseASRService.startConvert("cantonese.mp3");
+        return "http://www.meetingall.info" + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
     @GetMapping(value = "/getTranslateResultFile")
