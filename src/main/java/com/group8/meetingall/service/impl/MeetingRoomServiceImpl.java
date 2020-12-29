@@ -4,11 +4,13 @@ import com.group8.meetingall.controller.ArduinoController;
 import com.group8.meetingall.entity.MeetingRoom;
 import com.group8.meetingall.repository.MeetingRoomRepository;
 import com.group8.meetingall.service.IMeetingRoomService;
+import com.group8.meetingall.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -20,6 +22,9 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
 
     @Autowired
     MeetingRoomRepository meetingRoomRepository;
+
+    @Autowired
+    private SimpMessageSendingOperations simpMessageSendingOperations;
 
     @Override
     public List<MeetingRoom> queryAllMeetingRooms() {
@@ -37,11 +42,11 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
     @Override
     public void handleMeetingRoomStatus(String roomId, String status) {
         if (StringUtils.isNoneBlank(roomId, status)) {
-            MeetingRoom meetingRoom = meetingRoomRepository.findById(roomId).get();
+            MeetingRoom meetingRoom = meetingRoomRepository.findByRoomId(roomId);
             if (IDLE_STATUS.equals(meetingRoom.getCurrentStatus()) && !meetingRoom.getCurrentStatus().equals(status)) {
                 meetingRoom.setCurrentStatus(status);
                 meetingRoomRepository.save(meetingRoom);
-                // todo call websocket api
+                simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", JsonUtils.toJson(meetingRoom));
             }
             logger.info("MeetingRoom [" + meetingRoom.getOffice() + "-" + meetingRoom.getRoom() + "] is using now.");
         }
