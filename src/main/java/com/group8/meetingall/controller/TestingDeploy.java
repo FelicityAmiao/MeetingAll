@@ -19,6 +19,6 @@ public class TestingDeploy {
 
   @RequestMapping()
   public String test() {
-    return "Hello guys! Have a Nice Day! Testing auto build of jenkins https";
+    return "Hello guys! Have a Nice Day! Testing auto build of jenkins https1";
   }
 }
