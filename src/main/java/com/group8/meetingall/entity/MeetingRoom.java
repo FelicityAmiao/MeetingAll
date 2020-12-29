@@ -13,4 +13,10 @@ public class MeetingRoom {
     private String room;
     private String currentStatus;
     private boolean isDeviceStarted;
+    public MeetingRoom(String id, String office, String room, String currentStatus) {
+        this.id = id;
+        this.office = office;
+        this.room = room;
+        this.currentStatus = currentStatus;
+    }
 }
