@@ -71,7 +71,7 @@ public class MeetingRepository {
 
     public boolean findByIdAndUpdate(String id, Update update) {
         Document criteria = new Document();
-        criteria.put("id", id);
+        criteria.put("meetingId", id);
         BasicQuery query = new BasicQuery(criteria);
         try {
             mongoTemplate.findAndModify(query, update, MeetingProfile.class);

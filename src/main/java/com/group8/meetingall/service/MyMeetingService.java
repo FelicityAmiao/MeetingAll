@@ -160,7 +160,7 @@ public class MyMeetingService {
         try {
             Update update = new Update();
             update.set("status", "录音中");
-            meetingRepository.findByIdAndUpdate(meeting.getId(), update);
+            meetingRepository.findByIdAndUpdate(meeting.getMeetingId(), update);
             return true;
         }catch (Exception e){
             return false;
