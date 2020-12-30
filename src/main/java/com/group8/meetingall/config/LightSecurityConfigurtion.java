@@ -14,6 +14,7 @@ public class LightSecurityConfigurtion {
                 .add(HttpMethod.ANY, "/user/**", "anon()")
                 .add(HttpMethod.ANY, "/test/**", "anon()")
                 .add(HttpMethod.ANY, "/error", "anon()")
+                .add(HttpMethod.ANY, "/meetingRooms", "anon()")
                 .add(HttpMethod.ANY, "/myMeeting/**", "hasLogin()");
     }
 }
