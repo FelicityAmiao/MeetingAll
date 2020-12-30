@@ -1,6 +1,5 @@
 package com.group8.meetingall.service;
 
-import com.group8.meetingall.controller.MeetingRoomController;
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
@@ -19,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Comparator;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static com.group8.meetingall.utils.Constant.*;
 import static com.group8.meetingall.utils.DateTimeUtil.getCurrentDateTime;
+import static com.group8.meetingall.utils.DateTimeUtil.getMeetingDuration;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -93,6 +94,7 @@ public class MyMeetingService {
         meetingProfile.setStartTime(currentDateTime.substring(11));
         meetingProfile.setStatus(NEW);
         meetingProfile.setActive(true);
+        meetingProfile.setFinish(false);
         return meetingProfile;
     }
 
@@ -164,7 +166,7 @@ public class MyMeetingService {
             return false;
         }
     }
-    
+
     public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String format = sdf.format(new Date());
@@ -184,5 +186,18 @@ public class MyMeetingService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean finishMeeting(String meetingId) {
+        MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
+        if (meeting == null) {
+            return false;
+        }
+        meeting.setFinish(true);
+        meeting.setActive(false);
+        String endTime = getCurrentDateTime().substring(11);
+        meeting.setEndTime(endTime);
+        meeting.setDuration(getMeetingDuration(meeting.getStartDate(),meeting.getStartTime(),meeting.getEndTime()));
+        return meetingRepository.upsertMeeting(meeting);
     }
 }

@@ -40,6 +40,7 @@ public class MeetingRepository {
         criteria.put("userId", userId);
         criteria.put("active", true);
         criteria.put("delete", false);
+        criteria.put("finish", false);
         BasicQuery query = new BasicQuery(criteria);
         return mongoTemplate.findOne(query, MeetingProfile.class, "meeting_profile");
     }

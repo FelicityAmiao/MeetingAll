@@ -1,5 +1,6 @@
 package com.group8.meetingall.exception;
 
+import com.itmuch.lightsecurity.exception.LightSecurityException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -9,6 +10,12 @@ public class ControllerException {
   @ExceptionHandler(PasswordIsErrorException.class)
   public ResponseEntity handlePasswordIsErrorException(PasswordIsErrorException exception) {
     String str = "密码错误，请重新输入";
+    return ResponseEntity.badRequest().body(str);
+  }
+
+  @ExceptionHandler(LightSecurityException.class)
+  public ResponseEntity handlePasswordIsErrorException(LightSecurityException exception) {
+    String str = "未经授权。";
     return ResponseEntity.badRequest().body(str);
   }
 
@@ -24,9 +31,4 @@ public class ControllerException {
     return ResponseEntity.badRequest().body(str);
   }
 
-  @ExceptionHandler(NoAuthException.class)
-  public ResponseEntity handleNoAuthException(NoAuthException exception) {
-    String str = "未经授权。";
-    return ResponseEntity.badRequest().body(str);
-  }
 }

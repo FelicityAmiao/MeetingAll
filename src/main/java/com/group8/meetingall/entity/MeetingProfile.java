@@ -1,7 +1,6 @@
 package com.group8.meetingall.entity;
 
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,7 +13,7 @@ public class MeetingProfile {
     private String id;
     private String userId;
     private String meetingId;
-    private Double duration;
+    private String duration;
     private Integer language;
     private List<Integer> room;
     private String createTime;

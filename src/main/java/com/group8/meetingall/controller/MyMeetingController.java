@@ -5,8 +5,8 @@ import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.service.MyMeetingService;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
-import org.bson.types.ObjectId;
 import com.itmuch.lightsecurity.jwt.UserOperator;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +37,10 @@ public class MyMeetingController {
     private MeetingVo getMeeting() {
         String username = userOperator.getUser().getUsername();
         return meetingService.getActiveMeeting(username);
+    }
+    @PostMapping("{meetingId}")
+    private Boolean finishMeeting(@PathVariable(value = "meetingId") String meetingId) {
+        return meetingService.finishMeeting(meetingId);
     }
 
     @GetMapping("/report/{meetingId}")

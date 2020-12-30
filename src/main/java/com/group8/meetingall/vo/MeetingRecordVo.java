@@ -12,7 +12,7 @@ public class MeetingRecordVo {
     private String reportAddress;
     private String audioAddress;
     private String subject;
-    private Double duration;
+    private String duration;
     private String startDate;
     private String startTime;
     private String endTime;
