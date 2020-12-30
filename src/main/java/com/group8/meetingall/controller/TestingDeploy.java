@@ -3,8 +3,11 @@ package com.group8.meetingall.controller;
 import com.group8.meetingall.entity.MeetingRoom;
 import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.JsonUtils;
+import com.group8.meetingall.vo.MeetingRecordVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,14 +19,13 @@ public class TestingDeploy {
     private TranslateResultRepository resultRepository;
 
     @Autowired
-    RoomUpdateController roomUpdateController;
+    WebSocketController webSocketController;
 
     @Autowired
     private SimpMessageSendingOperations simpMessageSendingOperations;
 
-    @RequestMapping("/websocket")
-    public String testWebSocket() {
-        MeetingRoom meetingRoom = new MeetingRoom("1", "f", "1", "4");
+    @PostMapping("/websocket")
+    public String testWebSocket(@RequestBody MeetingRoom meetingRoom) {
         String s = JsonUtils.toJson(meetingRoom);
         simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", s);
         return s;
