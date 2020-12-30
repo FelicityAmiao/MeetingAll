@@ -33,6 +33,11 @@ public class MeetingRoomController {
         return new ResponseEntity<Object>(meetingRoomService.queryAllMeetingRooms(), HttpStatus.OK);
     }
 
+    @GetMapping("option")
+    public ResponseEntity<Object> queryAllRoomOptions() {
+        return new ResponseEntity<Object>(meetingRoomService.getRoomOptions(), HttpStatus.OK);
+    }
+
 //    @GetMapping("/{id}")
 //    public String sendDeviceStatusToArduino(@RequestParam("deviceStatus")String deviceStatus) {
 //        logger.info("===incoming===");

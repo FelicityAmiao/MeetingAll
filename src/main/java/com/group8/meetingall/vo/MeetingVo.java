@@ -11,7 +11,7 @@ public class MeetingVo {
     private String userId;
     private String meetingId;
     private Integer language;
-    private List<Integer> room;
+    private List<String> room;
     private String createTime;
     private String startTime;
     private String startDate;

@@ -15,7 +15,7 @@ public class MeetingProfile {
     private String meetingId;
     private String duration;
     private Integer language;
-    private List<Integer> room;
+    private List<String> room;
     private String createTime;
     private String startDate;
     private String startTime;

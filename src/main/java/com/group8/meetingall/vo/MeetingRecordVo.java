@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class MeetingRecordVo {
-    private List<Integer> room;
+    private List<String> room;
     private Integer language;
     private String status;
     private String reportAddress;

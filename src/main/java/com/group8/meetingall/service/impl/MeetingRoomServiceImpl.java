@@ -5,6 +5,8 @@ import com.group8.meetingall.entity.MeetingRoom;
 import com.group8.meetingall.repository.MeetingRoomRepository;
 import com.group8.meetingall.service.IMeetingRoomService;
 import com.group8.meetingall.utils.JsonUtils;
+import com.group8.meetingall.vo.Children;
+import com.group8.meetingall.vo.RoomOptionVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.group8.meetingall.constant.MeetingRoomConstant.IDLE_STATUS;
 
@@ -52,4 +58,17 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
         }
     }
 
+    @Override
+    public List<RoomOptionVo> getRoomOptions() {
+        List<RoomOptionVo> roomOptions = new ArrayList<>();
+        List<MeetingRoom> rooms = meetingRoomRepository.findAll();
+        Map<String, List<MeetingRoom>> officeMap = rooms.stream().collect(Collectors.groupingBy(MeetingRoom::getOffice));
+        for (Map.Entry<String, List<MeetingRoom>> entry : officeMap.entrySet()) {
+            RoomOptionVo roomOptionVo = new RoomOptionVo(entry.getKey());
+            List<Children> children = entry.getValue().stream().map(meetingRoom -> new Children(meetingRoom.getRoom())).collect(Collectors.toList());
+            roomOptionVo.setChildren(children);
+            roomOptions.add(roomOptionVo);
+        }
+        return roomOptions;
+    }
 }
