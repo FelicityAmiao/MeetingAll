@@ -56,7 +56,7 @@ public class MyMeetingController {
     }
 
     @PostMapping(value = "/upload/audio")
-    public ResponseEntity<Object> saveVoiceRecord(@RequestParam("attachmentFile") MultipartFile uploadFile, @RequestParam("meetingId") String meetingId , HttpServletRequest request){
-        return new ResponseEntity<Object>(meetingService.saveVoiceRecord(uploadFile, meetingId), HttpStatus.OK);
+    public ResponseEntity<Object> saveVoiceRecord(@RequestParam("attachmentFile") MultipartFile uploadFile, @RequestParam("meetingId") String meetingId , @RequestParam("meetingSubject") String meetingSubject, HttpServletRequest request){
+        return new ResponseEntity<Object>(meetingService.saveVoiceRecord(uploadFile, meetingId, meetingSubject), HttpStatus.OK);
     }
 }

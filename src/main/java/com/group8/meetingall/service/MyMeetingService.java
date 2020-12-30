@@ -165,14 +165,14 @@ public class MyMeetingService {
         }
     }
     
-    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId, String meetingSubject) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String format = sdf.format(new Date());
         File folder = new File(audioPath);
         if (!folder.isDirectory()){
             folder.mkdir();
         }
-        String newName = format + "-" + UUID.randomUUID().toString() + ".wav";
+        String newName = meetingSubject + "-" + format + ".wav";
 
         try {
             uploadFile.transferTo(new File(folder, newName));
