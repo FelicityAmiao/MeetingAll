@@ -52,4 +52,4 @@ email:
   port: 465
 
 websocket:
-  origin: http://localhost:9999
+  origin: http://localhost:8081
