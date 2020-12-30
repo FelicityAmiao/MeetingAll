@@ -5,6 +5,7 @@ import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.service.MyMeetingService;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
+import org.bson.types.ObjectId;
 import com.itmuch.lightsecurity.jwt.UserOperator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class MyMeetingController {
     private List<MeetingRecordVo> getMeetingRecords() {
         String username = userOperator.getUser().getUsername();
         return meetingService.getMeetingRecords(username);
+    }
+
+    @PostMapping("/recording")
+    private ResponseEntity<Object> recording(@RequestBody MeetingProfile meeting){
+        return new ResponseEntity<Object>(meetingService.recording(meeting), HttpStatus.OK);
     }
 
     @PostMapping(value = "/upload/audio")
