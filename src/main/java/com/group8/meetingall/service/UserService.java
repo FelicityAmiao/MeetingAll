@@ -1,11 +1,12 @@
 package com.group8.meetingall.service;
 
 import com.group8.meetingall.dto.RegisterDto;
+import com.group8.meetingall.dto.UserDto;
 import com.group8.meetingall.entity.AuthInformation;
 import com.group8.meetingall.entity.User;
 import com.group8.meetingall.repository.UserRepository;
-import com.itmuch.lightsecurity.jwt.JwtOperator;
 import com.group8.meetingall.utils.DateTimeUtil;
+import com.itmuch.lightsecurity.jwt.JwtOperator;
 import com.itmuch.lightsecurity.jwt.UserOperator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
