@@ -98,7 +98,7 @@ public class MyMeetingService {
 
     public List<MeetingRecordVo> getMeetingRecords(String user) {
         List<MeetingRecordVo> meetingRecordVoList = new ArrayList<>();
-        List<MeetingProfile> meetingProfiles = meetingRepository.findAllMeetingsByUserId(user);
+        List<MeetingProfile> meetingProfiles = meetingRepository.findHistoryMeetings(user);
         for (MeetingProfile meetingProfile : meetingProfiles) {
             MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
             BeanUtils.copyProperties(meetingProfile, meetingRecordVo);
