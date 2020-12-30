@@ -85,6 +85,7 @@ public class UserService {
         if(user == null || !user.getPassword().equals(originPassword)){
             passwordVo.setMsg("旧密码不正确");
             passwordVo.setSuccess(false);
+            return passwordVo;
         }
         user.setPassword(newPassword);
         userRepository.upsertPassword(user);
