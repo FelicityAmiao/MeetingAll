@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: prod
+light-security:
+  jwt:
+    algorithm: hs512
+    secret: http-security-secret-modify-mehttp-security-secret-modify
+    expiration-in-second: 1209600

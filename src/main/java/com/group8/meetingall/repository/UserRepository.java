@@ -20,11 +20,11 @@ public class UserRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<User> findUserByUsername(String username){
+    public User findUserByUsername(String username){
         Document criteria = new Document();
         criteria.put("username", username);
         BasicQuery query = new BasicQuery(criteria);
-        return mongoTemplate.find(query, User.class, "user");
+        return mongoTemplate.findOne(query, User.class, "user");
     }
 
     public User upsertUser(User user){

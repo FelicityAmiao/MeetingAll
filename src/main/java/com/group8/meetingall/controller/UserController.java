@@ -1,7 +1,6 @@
 package com.group8.meetingall.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.group8.meetingall.dto.UserDto;
 import com.group8.meetingall.entity.User;
 import com.group8.meetingall.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +16,16 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody String jsonString){
-        JSONObject jsonObject = JSON.parseObject(jsonString);
-        String username = jsonObject.getString("username");
-        String password = jsonObject.getString("password");
-        User user = userService.login(username, password);
+    public ResponseEntity<Object> login(){
+        User user = userService.getUser();
         HttpStatus status = user.getUserId() == null ? HttpStatus.NON_AUTHORITATIVE_INFORMATION : HttpStatus.OK;
         return new ResponseEntity<>(user, status);
     }
 
     @PostMapping("/regist")
-    public ResponseEntity<Object> regist(@RequestBody String jsonString){
-        JSONObject jsonObject = JSON.parseObject(jsonString);
-        String username = jsonObject.getString("username");
-        String password = jsonObject.getString("password");
+    public ResponseEntity<Object> regist(@RequestBody UserDto userDto){
+        String username = userDto.getUsername();
+        String password = userDto.getPassword();
         User user = userService.regist(username, password);
         HttpStatus status = user.getUserId() == null ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.OK;
         return new ResponseEntity<>(user, status);
