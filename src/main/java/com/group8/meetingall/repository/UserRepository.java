@@ -54,6 +54,14 @@ public class UserRepository {
         }
         return isSuccess;
     }
+     public void upsertPassword(User user){
+        boolean isSuccess = true;
+        Query query = new Query();
+        query.addCriteria(Criteria.where("username").is(user.getUsername()));
+        Update update = new Update();
+        update.set("password",user.getPassword());
+        mongoTemplate.upsert(query, update, User.class, "user");
+    }
 
     public List<AuthInformation> findAuthCode(String username,Integer authCode){
         Document criteria = new Document();

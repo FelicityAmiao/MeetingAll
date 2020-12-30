@@ -6,6 +6,7 @@ import com.group8.meetingall.dto.RegisterDto;
 import com.group8.meetingall.entity.User;
 import com.group8.meetingall.service.UserService;
 import com.group8.meetingall.utils.EmailUtil;
+import com.group8.meetingall.vo.PasswordVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,4 +59,13 @@ public class UserController {
         return isSuccess;
     }
 
+    @PostMapping("/password")
+    public ResponseEntity<Object> changePassword(@RequestBody String jsonString){
+        JSONObject jsonObject = JSON.parseObject(jsonString);
+        String username = jsonObject.getString("username");
+        String originPassword = jsonObject.getString("originPassword");
+        String newPassword = jsonObject.getString("newPassword");
+        PasswordVo PasswordVo = userService.changePassword(username, originPassword,newPassword);
+        return new ResponseEntity<>(PasswordVo, HttpStatus.OK);
+    }
 }

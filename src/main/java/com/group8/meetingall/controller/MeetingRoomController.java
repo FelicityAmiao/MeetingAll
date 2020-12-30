@@ -33,21 +33,14 @@ public class MeetingRoomController {
         return new ResponseEntity<Object>(meetingRoomService.queryAllMeetingRooms(), HttpStatus.OK);
     }
 
-//    @GetMapping("/{id}")
-//    public String sendDeviceStatusToArduino(@RequestParam("deviceStatus")String deviceStatus) {
-//        logger.info("===incoming===");
-//        RestTemplate restTemplate=new RestTemplate();
-//        ResponseEntity<String> response = restTemplate.getForEntity("http://192.168.43.123:80/update?deviceStatus=" + deviceStatus, String.class);
-////        ResponseEntity<String> response = restTemplate.getForEntity("http://146.222.43.156:8077/api/arduino/test?roomId=" + deviceStatus, String.class);
-//        logger.info("statusCode: " + response.getStatusCode());
-//        logger.info("statusCodeValue: " + response.getStatusCodeValue());
-//        logger.info("body: " + response.getBody());
-//        return response.getStatusCodeValue() == 200 ? "success" : "failed";
-//    }
+    @GetMapping("option")
+    public ResponseEntity<Object> queryAllRoomOptions() {
+        return new ResponseEntity<Object>(meetingRoomService.getRoomOptions(), HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity updateMeetingRoomStartedStatus(@RequestBody MeetingRoom meetingRoom){
-        meetingRoomServiceImpl.updateStartedStatusByRoomId(Optional.of(meetingRoom).get());
+        meetingRoomServiceImpl.handleRoomDeviceStatus(Optional.of(meetingRoom).get());
         return new ResponseEntity(HttpStatus.OK);
     }
 

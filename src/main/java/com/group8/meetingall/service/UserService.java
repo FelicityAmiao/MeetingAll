@@ -9,6 +9,8 @@ import com.group8.meetingall.exception.UserHasExistedException;
 import com.group8.meetingall.exception.UserNotExistedException;
 import com.group8.meetingall.repository.UserRepository;
 import com.group8.meetingall.utils.DateTimeUtil;
+import com.group8.meetingall.vo.LoginTokenVo;
+import com.group8.meetingall.vo.PasswordVo;
 import com.itmuch.lightsecurity.jwt.JwtOperator;
 import com.itmuch.lightsecurity.jwt.UserOperator;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class UserService {
         return userRepository.findUserByUsername(username);
     }
 
-    public String auth(UserDto userDto) {
+    public LoginTokenVo auth(UserDto userDto) {
         String username = userDto.getUsername();
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
@@ -41,7 +43,7 @@ public class UserService {
                     .id(1)
                     .username(user.getUsername())
                     .build();
-            return jwtOperator.generateToken(jwtUser);
+            return new LoginTokenVo(jwtOperator.generateToken(jwtUser),username);
         }else{
             throw new PasswordIsErrorException();
         }
@@ -73,6 +75,20 @@ public class UserService {
         authInformation.setDeadLine(null);
         userRepository.upsertAuthCode(authInformation);
         return registerDto;
+    }
+
+    public PasswordVo changePassword(String username, String originPassword, String newPassword){
+        PasswordVo passwordVo = new PasswordVo();
+        passwordVo.setSuccess(true);
+        passwordVo.setMsg("修改密码成功");
+        User user = userRepository.findUserByUsername(username);
+        if(user == null || !user.getPassword().equals(originPassword)){
+            passwordVo.setMsg("旧密码不正确");
+            passwordVo.setSuccess(false);
+        }
+        user.setPassword(newPassword);
+        userRepository.upsertPassword(user);
+        return passwordVo;
     }
 
     public boolean verifyUsername(String username) {

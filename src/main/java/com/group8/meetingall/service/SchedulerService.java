@@ -1,0 +1,58 @@
+package com.group8.meetingall.service;
+
+import com.group8.meetingall.entity.MeetingRoom;
+import com.group8.meetingall.entity.MeetingRoomScheduler;
+import com.group8.meetingall.repository.MeetingRoomRepository;
+import com.group8.meetingall.repository.ScheduleRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+
+import java.util.Date;
+
+import static com.group8.meetingall.constant.MeetingRoomConstant.IDLE_STATUS;
+
+@Service
+public class SchedulerService {
+
+    @Autowired
+    ScheduleRepository scheduleRepository;
+
+    @Autowired
+    MeetingRoomRepository meetingRoomRepository;
+
+
+    public MeetingRoomScheduler queryScheduleByRoomName(String roomName) {
+        return scheduleRepository.findByRoomName(roomName);
+    }
+
+    public void updateStatusById(String id) {
+        if (StringUtils.isNoneBlank(id)) {
+            MeetingRoom meetingRoom = meetingRoomRepository.findById(id).get();
+            if (!ObjectUtils.isEmpty(meetingRoom)) {
+                meetingRoom.setCurrentStatus(IDLE_STATUS);
+                meetingRoom.setDeviceStarted(false);
+                meetingRoomRepository.save(meetingRoom);
+            }
+        }
+    }
+
+    public boolean isMoreThan5Minutes(Date lastDateTime) {
+        long standard = 300000;
+        long lastDateTimeSecond = lastDateTime.getTime();
+        long currentDateTimeSecond = new Date().getTime();
+        return currentDateTimeSecond - lastDateTimeSecond > standard;
+    }
+
+    public void upsertSchedule(String roomName) {
+        MeetingRoomScheduler currentMeetingRoomScheduler = scheduleRepository.findByRoomName(roomName);
+        if (!ObjectUtils.isEmpty(currentMeetingRoomScheduler)) {
+            currentMeetingRoomScheduler.setLastDateTime(new Date());
+            scheduleRepository.save(currentMeetingRoomScheduler);
+        } else {
+            MeetingRoomScheduler meetingRoomScheduler = new MeetingRoomScheduler(roomName, new Date());
+            scheduleRepository.save(meetingRoomScheduler);
+        }
+    }
+}
