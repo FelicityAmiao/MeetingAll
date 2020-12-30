@@ -9,6 +9,7 @@ import com.group8.meetingall.exception.UserHasExistedException;
 import com.group8.meetingall.exception.UserNotExistedException;
 import com.group8.meetingall.repository.UserRepository;
 import com.group8.meetingall.utils.DateTimeUtil;
+import com.group8.meetingall.vo.PasswordVo;
 import com.itmuch.lightsecurity.jwt.JwtOperator;
 import com.itmuch.lightsecurity.jwt.UserOperator;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,20 @@ public class UserService {
         authInformation.setDeadLine(null);
         userRepository.upsertAuthCode(authInformation);
         return registerDto;
+    }
+
+    public PasswordVo changePassword(String username, String originPassword, String newPassword){
+        PasswordVo passwordVo = new PasswordVo();
+        passwordVo.setSuccess(true);
+        passwordVo.setMsg("修改密码成功");
+        User user = userRepository.findUserByUsername(username);
+        if(user == null || !user.getPassword().equals(originPassword)){
+            passwordVo.setMsg("旧密码不正确");
+            passwordVo.setSuccess(false);
+        }
+        user.setPassword(newPassword);
+        userRepository.upsertPassword(user);
+        return passwordVo;
     }
 
     public boolean verifyUsername(String username) {
