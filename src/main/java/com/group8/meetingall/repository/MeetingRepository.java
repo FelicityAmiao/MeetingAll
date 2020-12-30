@@ -27,6 +27,15 @@ public class MeetingRepository {
         return mongoTemplate.find(query, MeetingProfile.class, "meeting_profile");
     }
 
+    public List<MeetingProfile> findHistoryMeetings(String userId) {
+        Document criteria = new Document();
+        criteria.put("userId", userId);
+        criteria.put("delete", false);
+        criteria.put("finish", true);
+        BasicQuery query = new BasicQuery(criteria);
+        return mongoTemplate.find(query, MeetingProfile.class, "meeting_profile");
+    }
+
     public MeetingProfile findMeetingByMeetingId(String meetingId) {
         Document criteria = new Document();
         criteria.put("meetingId", meetingId);

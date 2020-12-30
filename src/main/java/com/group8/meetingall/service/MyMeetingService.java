@@ -100,7 +100,7 @@ public class MyMeetingService {
 
     public List<MeetingRecordVo> getMeetingRecords(String user) {
         List<MeetingRecordVo> meetingRecordVoList = new ArrayList<>();
-        List<MeetingProfile> meetingProfiles = meetingRepository.findAllMeetingsByUserId(user);
+        List<MeetingProfile> meetingProfiles = meetingRepository.findHistoryMeetings(user);
         for (MeetingProfile meetingProfile : meetingProfiles) {
             MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
             BeanUtils.copyProperties(meetingProfile, meetingRecordVo);
@@ -167,14 +167,14 @@ public class MyMeetingService {
         }
     }
 
-    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    public String saveVoiceRecord(MultipartFile uploadFile, String meetingId, String meetingSubject) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String format = sdf.format(new Date());
         File folder = new File(audioPath);
         if (!folder.isDirectory()){
             folder.mkdir();
         }
-        String newName = format + "-" + UUID.randomUUID().toString() + ".wav";
+        String newName = meetingSubject + "-" + format + ".wav";
 
         try {
             uploadFile.transferTo(new File(folder, newName));
