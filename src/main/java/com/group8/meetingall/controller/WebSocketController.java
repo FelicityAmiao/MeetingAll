@@ -21,9 +21,7 @@ public class WebSocketController {
     @MessageMapping("/report")
     @SendToUser("/queue/reportGeneration")
     public MeetingRecordVo informReportCreated(MeetingRecordVo meetingRecordVo) {
-        MeetingRecordVo meetingRecordVo1 = new MeetingRecordVo();
-        meetingRecordVo1.setMeetingId("1");
-        return meetingRecordVo1;
+        return meetingRecordVo;
     }
 
 }
