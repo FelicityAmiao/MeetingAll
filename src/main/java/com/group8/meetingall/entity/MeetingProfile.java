@@ -26,5 +26,6 @@ public class MeetingProfile {
     private String status;
     private boolean delete;
     private boolean active;
+    private boolean finish;
     private String subject;
 }
