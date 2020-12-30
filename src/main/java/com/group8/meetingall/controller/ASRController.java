@@ -51,15 +51,10 @@ public class ASRController {
 
     @GetMapping(value = "/testExecShellScript")
     public String testExecShellScript() throws IOException, InterruptedException {
-        File file=new File("/home/test/test.sh");
-        file.setReadable(true);
-        file.setWritable(true);
-        file.setExecutable(true);
-        String command = "sh /home/test/test.sh";
         log.info("开始执行脚本...");
-        Process process = Runtime.getRuntime().exec(command);
+        Process process = Runtime.getRuntime().exec("/home/test/test.sh");
         int exitValue = process.waitFor();
-        return "执行脚本成功！exitValue is" + exitValue;
+        return "exitValue is" + exitValue;
     }
 
     @GetMapping(value = "/getTranslateResultFile")
