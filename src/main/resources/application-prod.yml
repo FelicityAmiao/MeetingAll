@@ -1,5 +1,8 @@
 server:
   port: 8077
+  ssl:
+    key-store: /var/ssl/4982052_www.meetingall.info.pfx
+    key-store-password: H7wY38tj
   servlet:
     context-path: /api
 spring:
@@ -46,6 +49,7 @@ filePath:
   report: /home/meetingall/files/report/
 
 email:
-  hostName: "smtp.163.com"
-  account: "zhuzhuxia96@126.com"
-  authorizedCode: "HNCSGCOSUEDRVJGU"
+  hostName: smtp.163.com
+  account: liujo2@163.com
+  authorizedCode: HQNPYTYUCHCZXYBZ
+  port: 465
