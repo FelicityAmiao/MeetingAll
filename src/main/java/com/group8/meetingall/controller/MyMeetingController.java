@@ -6,6 +6,8 @@ import com.group8.meetingall.service.MyMeetingService;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import org.bson.types.ObjectId;
+import com.itmuch.lightsecurity.jwt.UserOperator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +20,23 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/myMeeting")
 @RestController
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MyMeetingController {
     @Autowired
     private MyMeetingService meetingService;
+    private final UserOperator userOperator;
 
     @PostMapping
     private MeetingVo addMeeting(@RequestBody MeetingDto meetingDto) {
+        String username = userOperator.getUser().getUsername();
+        meetingDto.setUserId(username);
         return meetingService.upsertMeeting(meetingDto);
     }
 
-    @GetMapping("/{userId}")
-    private MeetingVo getMeeting(@PathVariable(value = "userId") String userId) {
-        return meetingService.getActiveMeeting(userId);
+    @GetMapping()
+    private MeetingVo getMeeting() {
+        String username = userOperator.getUser().getUsername();
+        return meetingService.getActiveMeeting(username);
     }
 
     @GetMapping("/report/{meetingId}")
@@ -37,9 +44,10 @@ public class MyMeetingController {
         return meetingService.generateReport(meetingId);
     }
 
-    @GetMapping("/meetingrecords/{user}")
-    private List<MeetingRecordVo> getMeetingRecords(@PathVariable(value = "user") String user) {
-        return meetingService.getMeetingRecords(user);
+    @GetMapping("/meetingrecords")
+    private List<MeetingRecordVo> getMeetingRecords() {
+        String username = userOperator.getUser().getUsername();
+        return meetingService.getMeetingRecords(username);
     }
 
     @PostMapping("/recording")

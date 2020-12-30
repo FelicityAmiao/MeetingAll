@@ -16,4 +16,5 @@ public class MeetingRecordVo {
     private String startDate;
     private String startTime;
     private String endTime;
+    private String meetingId;
 }
