@@ -50,7 +50,7 @@ public class ASRController {
 
     @GetMapping(value = "/testExecShellScript")
     public String testExecShellScript() throws IOException, InterruptedException {
-        String command = "/home/test/test.sh";
+        String command = "sh /home/test/test.sh";
         log.info("开始执行脚本...");
         Process process = Runtime.getRuntime().exec(command);
         int exitValue = process.waitFor();
