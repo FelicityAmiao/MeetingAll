@@ -112,6 +112,7 @@ public class MyMeetingService {
     }
 
     public MeetingVo generateReport(String meetingId) {
+        log.info("开始生成报告...");
         MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
         if (meeting == null) {
             return null;
@@ -135,6 +136,7 @@ public class MyMeetingService {
                     Process process = null;
                     try {
                         process = pb.start();
+                        log.info("开始处理脚本...");
                         int exitValue = process.waitFor();
                         log.info("处理脚本结束,exit value is " + exitValue);
                     } catch (IOException | InterruptedException e) {
