@@ -8,7 +8,7 @@ import java.util.List;
 public interface IMeetingRoomService {
     List<MeetingRoom> queryAllMeetingRooms();
 
-    void updateStartedStatusByRoomId(MeetingRoom meetingRoom);
+    void handleRoomDeviceStatus(MeetingRoom meetingRoom);
 
     void handleMeetingRoomStatus(String roomId, String status);
 
