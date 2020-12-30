@@ -62,13 +62,10 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
       MeetingRoom meetingRoom = meetingRoomRepository.findByRoomId(roomId);
       schedulerService.upsertSchedule(meetingRoom.getRoom());
       if (isForUsingStatus(status, meetingRoom)) {
-        ResponseEntity<String> response = IOTConnectUtil.sendDeviceStatusToIOT(DEVICE_START_STATUS, meetingRoom.getRoom());
-        if (response.getStatusCodeValue() == 200) {
-          meetingRoom.setCurrentStatus(status);
-          meetingRoom.setDeviceStarted(true);
-          meetingRoomRepository.save(meetingRoom);
-          simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", JsonUtils.toJson(meetingRoom));
-        }
+        meetingRoom.setCurrentStatus(status);
+        meetingRoom.setDeviceStarted(true);
+        meetingRoomRepository.save(meetingRoom);
+        simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", JsonUtils.toJson(meetingRoom));
       }
       logger.info("MeetingRoom [" + meetingRoom.getOffice() + "-" + meetingRoom.getRoom() + "] is using now.");
     }
