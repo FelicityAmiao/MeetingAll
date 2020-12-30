@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -50,6 +51,10 @@ public class ASRController {
 
     @GetMapping(value = "/testExecShellScript")
     public String testExecShellScript() throws IOException, InterruptedException {
+        File file=new File("/home/test/test.sh");
+        file.setReadable(true);
+        file.setWritable(true);
+        file.setExecutable(true);
         String command = "sh /home/test/test.sh";
         log.info("开始执行脚本...");
         Process process = Runtime.getRuntime().exec(command);
