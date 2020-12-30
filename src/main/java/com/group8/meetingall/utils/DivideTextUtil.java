@@ -9,10 +9,6 @@ public class DivideTextUtil {
     private static WordDictionary wordDictionary = WordDictionary.getInstance();
     private static FinalSeg finalSeg = FinalSeg.getInstance();
 
-    public enum SegMode {
-        SEARCH
-    }
-
     public static List<String> splitText(String text){
         List<String> words = new ArrayList<>();
         int textLength = text.length();
@@ -98,7 +94,7 @@ public class DivideTextUtil {
 
     private static Map<Integer, Pair<Integer>> calc(String sentence, Map<Integer, List<Integer>> dag) {
         int N = sentence.length();
-        HashMap<Integer, Pair<Integer>> route = new HashMap<Integer, Pair<Integer>>();
+        HashMap<Integer, Pair<Integer>> route = new HashMap<>();
         route.put(N, new Pair<>(0, 0.0));
         for (int i = N - 1; i > -1; i--) {
             Pair<Integer> candidate = null;

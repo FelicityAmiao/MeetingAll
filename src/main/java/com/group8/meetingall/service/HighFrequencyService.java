@@ -1,6 +1,7 @@
 package com.group8.meetingall.service;
 
 import com.group8.meetingall.highfrequency.InverseDocumentFrequency;
+import com.group8.meetingall.highfrequency.StopWords;
 import com.group8.meetingall.highfrequency.TermFrequency;
 import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.HighlightUtil;
@@ -12,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -36,11 +34,21 @@ public class HighFrequencyService {
         List<Keyword> keywordList = new ArrayList<>();
         Map<String, Double> idfMap = InverseDocumentFrequency.getInstance();
         Map<String, Double> tfMap = TermFrequency.getTermFrequency(text);
+        Set<String> stopWords = StopWords.getInstance();
         tfMap.keySet().forEach(word -> {
-            if (idfMap.containsKey(word)) {
-                keywordList.add(new Keyword(word, tfMap.get(word) * idfMap.get(word)));
-            } else {
-                keywordList.add(new Keyword(word, tfMap.get(word) * InverseDocumentFrequency.idfMedian));
+            boolean isStopWord = false;
+            for(int i = 0; i < word.length(); i++){
+                if(stopWords.contains(word.substring(i,i+1))){
+                    isStopWord = true;
+                    break;
+                }
+            }
+            if(!isStopWord){
+                if (idfMap.containsKey(word)) {
+                    keywordList.add(new Keyword(word, tfMap.get(word) * idfMap.get(word)));
+                } else {
+                    keywordList.add(new Keyword(word, tfMap.get(word) * InverseDocumentFrequency.idfMedian));
+                }
             }
         });
         if (keywordList.size() > count) {
