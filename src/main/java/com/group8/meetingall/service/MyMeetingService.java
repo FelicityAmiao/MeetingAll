@@ -5,6 +5,7 @@ import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -18,12 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -33,9 +29,12 @@ import static com.group8.meetingall.utils.DateTimeUtil.getMeetingDuration;
 import static java.util.Objects.nonNull;
 
 @Service
+@Slf4j
 public class MyMeetingService {
     @Autowired
     CantoneseASRService cantoneseASRService;
+    @Autowired
+    XFCantoneseASRService xfCantoneseASRService;
     @Autowired
     HighFrequencyService highFrequencyService;
     @Autowired
@@ -130,7 +129,23 @@ public class MyMeetingService {
                 return convertToMeetingVo(meeting);
             case 2:
                 CompletableFuture.supplyAsync(() -> {
-                    String uuid = cantoneseASRService.startConvert(meeting.getAudioAddress());
+                    String audioAddress = meeting.getAudioAddress();
+                    String audioName = audioAddress.substring(0, audioAddress.indexOf("."));
+                    ProcessBuilder pb = new ProcessBuilder("/home/test/test.sh", audioName);
+                    Process process = null;
+                    try {
+                        process = pb.start();
+                        int exitValue = process.waitFor();
+                        log.info("处理脚本结束,exit value is " + exitValue);
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    String uuid = null;
+                    try {
+                        uuid = xfCantoneseASRService.startXFASRProcessing(audioName+".pcm");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
@@ -162,7 +177,7 @@ public class MyMeetingService {
             update.set("status", "录音中");
             meetingRepository.findByIdAndUpdate(meeting.getId(), update);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -171,7 +186,7 @@ public class MyMeetingService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String format = sdf.format(new Date());
         File folder = new File(audioPath);
-        if (!folder.isDirectory()){
+        if (!folder.isDirectory()) {
             folder.mkdir();
         }
         String newName = meetingSubject + "-" + format + ".wav";
@@ -197,7 +212,7 @@ public class MyMeetingService {
         meeting.setActive(false);
         String endTime = getCurrentDateTime().substring(11);
         meeting.setEndTime(endTime);
-        meeting.setDuration(getMeetingDuration(meeting.getStartDate(),meeting.getStartTime(),meeting.getEndTime()));
+        meeting.setDuration(getMeetingDuration(meeting.getStartDate(), meeting.getStartTime(), meeting.getEndTime()));
         return meetingRepository.upsertMeeting(meeting);
     }
 }
