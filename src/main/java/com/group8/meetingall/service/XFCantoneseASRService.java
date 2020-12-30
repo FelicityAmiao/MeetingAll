@@ -58,6 +58,7 @@ public class XFCantoneseASRService extends WebSocketListener {
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         super.onOpen(webSocket, response);
+        log.info("开始建立连接...");
         new Thread(() -> {
             int frameSize = 1280; //每一帧音频的大小,建议每 40ms 发送 122B
             int intervel = 40;
@@ -174,6 +175,7 @@ public class XFCantoneseASRService extends WebSocketListener {
     }
 
     public String startXFASRProcessing(String audioAddress) throws Exception {
+        log.info("开始转写过程...");
         String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
         OkHttpClient client = new OkHttpClient.Builder().build();
         String url = authUrl.replace("http://", "ws://").replace("https://", "wss://");
