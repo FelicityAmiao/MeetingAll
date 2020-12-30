@@ -3,6 +3,7 @@ package com.group8.meetingall.controller;
 import com.group8.meetingall.service.ASRService;
 import com.group8.meetingall.service.CantoneseASRService;
 import com.group8.meetingall.service.ReportGenerationService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.net.UnknownHostException;
 
 @RestController
 @RequestMapping("/ASR")
+@Slf4j
 public class ASRController {
 
     @Value("${server.port}")
@@ -44,6 +46,15 @@ public class ASRController {
     public String convertCantoneseVideo() throws IOException {
         String UUID = cantoneseASRService.startConvert("cantonese.mp3");
         return "http://www.meetingall.info" + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
+    }
+
+    @GetMapping(value = "/testExecShellScript")
+    public String testExecShellScript() throws IOException, InterruptedException {
+        String command = "/home/test/test.sh";
+        log.info("开始执行脚本...");
+        Process process = Runtime.getRuntime().exec(command);
+        int exitValue = process.waitFor();
+        return "执行脚本成功！exitValue is" + exitValue;
     }
 
     @GetMapping(value = "/getTranslateResultFile")
