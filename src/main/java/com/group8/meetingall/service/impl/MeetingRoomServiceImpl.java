@@ -57,6 +57,7 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
 
   @Override
   public void handleMeetingRoomStatus(String roomId, String status) {
+    logger.info("receive data from IoT, roomId = " + roomId + ", newStatus = " + status);
     if (StringUtils.isNoneBlank(roomId, status)) {
       MeetingRoom meetingRoom = meetingRoomRepository.findByRoomId(roomId);
       schedulerService.upsertSchedule(meetingRoom.getRoom());
