@@ -53,3 +53,6 @@ email:
   account: liujo2@163.com
   authorizedCode: HQNPYTYUCHCZXYBZ
   port: 465
+
+websocket:
+  origin: https://www.meetingall.info:9999

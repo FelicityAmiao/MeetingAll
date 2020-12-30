@@ -50,3 +50,6 @@ email:
   account: liujo2@163.com
   authorizedCode: HQNPYTYUCHCZXYBZ
   port: 465
+
+websocket:
+  origin: http://localhost:8081

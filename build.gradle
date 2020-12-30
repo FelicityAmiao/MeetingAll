@@ -47,6 +47,7 @@ dependencies {
     compile group: 'com.itmuch.security', name: 'light-security-spring-boot-starter', version: '1.1.0-RELEASE'
     testCompile('org.springframework.security:spring-security-test:4.2.2.RELEASE')
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.1.4.RELEASE'
+
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
