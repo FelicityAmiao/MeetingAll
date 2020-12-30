@@ -153,6 +153,17 @@ public class MyMeetingService {
         reportName = reportName.replaceAll(SPACE, UNDERLINE);
         return reportName;
     }
+
+    public boolean recording(MeetingProfile meeting) {
+        try {
+            Update update = new Update();
+            update.set("status", "录音中");
+            meetingRepository.findByIdAndUpdate(meeting.getId(), update);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
     
     public String saveVoiceRecord(MultipartFile uploadFile, String meetingId) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -167,6 +178,7 @@ public class MyMeetingService {
             uploadFile.transferTo(new File(folder, newName));
             Update update = new Update();
             update.set("audioAddress", newName);
+            update.set("status", "已录音");
             meetingRepository.findByIdAndUpdate(meetingId, update);
         } catch (IOException e) {
             e.printStackTrace();
