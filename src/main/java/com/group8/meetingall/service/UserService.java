@@ -4,6 +4,9 @@ import com.group8.meetingall.dto.RegisterDto;
 import com.group8.meetingall.dto.UserDto;
 import com.group8.meetingall.entity.AuthInformation;
 import com.group8.meetingall.entity.User;
+import com.group8.meetingall.exception.PasswordIsErrorException;
+import com.group8.meetingall.exception.UserHasExistedException;
+import com.group8.meetingall.exception.UserNotExistedException;
 import com.group8.meetingall.repository.UserRepository;
 import com.group8.meetingall.utils.DateTimeUtil;
 import com.itmuch.lightsecurity.jwt.JwtOperator;
@@ -31,7 +34,7 @@ public class UserService {
         String username = userDto.getUsername();
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            return null;
+            throw new UserNotExistedException();
         }
         if (user.getPassword().equals(userDto.getPassword())) {
             com.itmuch.lightsecurity.jwt.User jwtUser = com.itmuch.lightsecurity.jwt.User.builder()
@@ -39,8 +42,9 @@ public class UserService {
                     .username(user.getUsername())
                     .build();
             return jwtOperator.generateToken(jwtUser);
+        }else{
+            throw new PasswordIsErrorException();
         }
-        return null;
     }
 
     public RegisterDto regist(String username, String password, Integer authCode){
@@ -73,7 +77,10 @@ public class UserService {
 
     public boolean verifyUsername(String username) {
         User user = userRepository.findUserByUsername(username);
-        return user == null;
+        if (user != null) {
+            throw new UserHasExistedException();
+        }
+        return true;
     }
 
     public boolean saveAuthCode(String username,Integer authCode){
