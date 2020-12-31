@@ -24,7 +24,7 @@ public class FileController {
         OutputStream out = null;
         String filteType = fileName.substring(fileName.lastIndexOf(".")+1);
         String path = reportPath + fileName;
-        String contentType = "application/msword;charset=UTF-8";
+        String contentType = "application/msword";
         if("wav".equalsIgnoreCase(filteType)){
             path = audioPath + "/" + fileName;
             contentType = "audio/wav";

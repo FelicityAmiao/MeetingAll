@@ -2,6 +2,7 @@ package com.group8.meetingall.service;
 
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
+import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
@@ -32,15 +33,13 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class MyMeetingService {
     @Autowired
-    CantoneseASRService cantoneseASRService;
-    @Autowired
     XFCantoneseASRService xfCantoneseASRService;
     @Autowired
     HighFrequencyService highFrequencyService;
     @Autowired
     private MeetingRepository meetingRepository;
     @Autowired
-    private ASRService asrService;
+    private XFChineseASRService XFChineseAsrService;
     @Value("${filePath.audio}")
     private String audioPath;
 
@@ -111,18 +110,21 @@ public class MyMeetingService {
                 .collect(Collectors.toList());
     }
 
-    public MeetingVo generateReport(String meetingId) {
+    public MeetingVo generateReport(String meetingId) throws ASRException {
         log.info("开始生成报告...");
         MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
         if (meeting == null) {
             return null;
+        }
+        if (ObjectUtils.isEmpty(meeting.getAudioAddress())) {
+            throw new ASRException("录音地址不存在");
         }
         meeting.setStatus(REPORT_ING);
         String fileName = generateReportName(meeting);
         switch (meeting.getLanguage()) {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
-                    String uuid = asrService.convert(meeting.getAudioAddress());
+                    String uuid = XFChineseAsrService.convert(meeting.getAudioAddress());
                     generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
@@ -132,19 +134,10 @@ public class MyMeetingService {
                 CompletableFuture.supplyAsync(() -> {
                     String audioAddress = meeting.getAudioAddress();
                     String audioName = audioAddress.substring(0, audioAddress.indexOf("."));
-                    ProcessBuilder pb = new ProcessBuilder("/home/test/test.sh", audioName);
-                    Process process = null;
-                    try {
-                        process = pb.start();
-                        log.info("开始处理脚本...");
-                        int exitValue = process.waitFor();
-                        log.info("处理脚本结束,exit value is " + exitValue);
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    transformVideoToPCMFormat(audioName);
                     String uuid = null;
                     try {
-                        uuid = xfCantoneseASRService.startXFASRProcessing(audioName+".pcm");
+                        uuid = xfCantoneseASRService.startXFASRProcessing(audioName + ".pcm");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -158,6 +151,19 @@ public class MyMeetingService {
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    private void transformVideoToPCMFormat(String audioName) {
+        ProcessBuilder pb = new ProcessBuilder("/home/meetingall/files/script/transformToPCM.sh", audioName);
+        Process process = null;
+        try {
+            process = pb.start();
+            log.info("开始处理脚本...");
+            int exitValue = process.waitFor();
+            log.info("处理脚本结束,exit value is " + exitValue);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {

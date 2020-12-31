@@ -7,7 +7,6 @@ import com.group8.meetingall.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -27,42 +26,26 @@ public class XFCantoneseASRService extends WebSocketListener {
     private static final String appid = "5fcd6f17";
     private static final String apiSecret = "49b35812b3f76ada00c60fab65b594ab";
     private static final String apiKey = "dcbd8654315265b138314a0a2107bbf0";
+    private final String audioPath = "/home/meetingall/files/audio/";
     public static final int StatusFirstFrame = 0;
     public static final int StatusContinueFrame = 1;
     public static final int StatusLastFrame = 2;
     private Decoder decoder = new Decoder();
     private String result = null;
     private String audioAddress = null;
-    @Value("${filePath.audio}")
-    private String audioPath;
     @Autowired
     TranslateResultRepository translateResultRepository;
-
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public String getAudioAddress() {
-        return audioAddress;
-    }
-
-    public void setAudioAddress(String audioAddress) {
-        this.audioAddress = audioAddress;
-    }
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         super.onOpen(webSocket, response);
+        log.info("开始建立连接...");
         new Thread(() -> {
             int frameSize = 1280; //每一帧音频的大小,建议每 40ms 发送 122B
             int intervel = 40;
             int status = 0;  // 音频的状态
-            try (FileInputStream fs = new FileInputStream(audioPath+ getAudioAddress())) {
+            log.info("audioPath--" + audioPath + ",audioAddress----" + getAudioAddress() + ",文件路径为--" + audioPath + getAudioAddress());
+            try (FileInputStream fs = new FileInputStream(audioPath + getAudioAddress())) {
                 byte[] buffer = new byte[frameSize];
                 end:
                 while (true) {
@@ -89,6 +72,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                                             .build())
                                     .build();
                             webSocket.send(JsonUtils.toJson(xfRequestDTO));
+                            log.info("第一帧发送完毕！");
                             status = StatusContinueFrame;  // 发送完第一帧改变status 为 1
                             break;
                         case StatusContinueFrame:  //中间帧status = 1
@@ -101,6 +85,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                                             .build())
                                     .build();
                             webSocket.send(JsonUtils.toJson(xfRequestDTO1));
+                            log.info("发送中间帧！");
                             break;
                         case StatusLastFrame:    // 最后一帧音频status = 2 ，标志音频发送结束
                             XFRequestDTO xfRequestDTO2 = XFRequestDTO.builder()
@@ -126,8 +111,8 @@ public class XFCantoneseASRService extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         super.onMessage(webSocket, text);
+        log.info("开始处理返回消息...");
         ResponseData resp = JsonUtils.fromJson(text, ResponseData.class);
-        System.out.println(resp.toString());
         if (resp != null) {
             if (resp.getCode() != 0) {
                 log.info("code=>" + resp.getCode() + " error=>" + resp.getMessage() + " sid=" + resp.getSid());
@@ -147,7 +132,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                 if (resp.getData().getStatus() == 2) {
                     log.info("最终识别结果 ==》" + decoder.toString());
                     setResult(decoder.toString());
-                    System.out.println("本次识别sid ==》" + resp.getSid());
+                    log.info("本次识别sid ==》" + resp.getSid());
                     decoder.discard();
                     webSocket.close(1000, "");
                     log.info("会话结束，关闭会话");
@@ -174,6 +159,7 @@ public class XFCantoneseASRService extends WebSocketListener {
     }
 
     public String startXFASRProcessing(String audioAddress) throws Exception {
+        log.info("开始转写过程...");
         String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
         OkHttpClient client = new OkHttpClient.Builder().build();
         String url = authUrl.replace("http://", "ws://").replace("https://", "wss://");
@@ -184,7 +170,7 @@ public class XFCantoneseASRService extends WebSocketListener {
         while (true) {
             String result = xfCantoneseASRService.getResult();
             if (result != null) {
-                System.out.println("返回结果--" + xfCantoneseASRService.getResult());
+                log.info("返回结果--" + xfCantoneseASRService.getResult());
                 TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(result);
                 return translateResultEntity.getUUID();
             }
@@ -219,6 +205,22 @@ public class XFCantoneseASRService extends WebSocketListener {
                 .addQueryParameter("host", url.getHost()).
                         build();
         return httpUrl.toString();
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getAudioAddress() {
+        return audioAddress;
+    }
+
+    public void setAudioAddress(String audioAddress) {
+        this.audioAddress = audioAddress;
     }
 
 }

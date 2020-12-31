@@ -6,18 +6,18 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HighlightUtil {
+    static Logger logger = LoggerFactory.getLogger(HighlightUtil.class);
+
     public static String preProcessText(String text, List<String> words) {
         for (String word : words) {
             Pattern p = Pattern.compile(word);
@@ -34,15 +34,25 @@ public class HighlightUtil {
         XWPFParagraph titleParagraph = document.createParagraph();
         titleParagraph.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun titleParagraphRun = titleParagraph.createRun();
-        LocalDate localDate = LocalDate.now();
-        titleParagraphRun.setText("Meeting Report-" + localDate.toString());
+        titleParagraphRun.setText("Meeting Report");
         titleParagraphRun.setColor(Color.BLACK.getColor());
         titleParagraphRun.setFontSize(20);
         XWPFParagraph paragraph = document.createParagraph();
         String preProcessStr = preProcessText(text, keywords);
         List<CustomRun> customRuns = generateCustomRuns(preProcessStr, keywords);
         generateHighLightRuns(paragraph, customRuns);
-
+        document.createParagraph();
+        XWPFParagraph keywordParagraph = document.createParagraph();
+        XWPFRun run1 = keywordParagraph.createRun();
+        run1.setText("高频词： ");
+        keywords.forEach(keyword -> {
+            XWPFRun run = keywordParagraph.createRun();
+            if (keywords.indexOf(keyword) == keywords.size() - 1) {
+                run.setText(keyword);
+            } else {
+                run.setText(keyword + "， ");
+            }
+        });
         return document;
     }
 
@@ -51,6 +61,7 @@ public class HighlightUtil {
             XWPFRun run = paragraph.createRun();
             run.setText(customRun.getText());
             if (customRun.isHighlight()) {
+                logger.info(customRun.getText());
                 CTShd ctShd = run.getCTR().addNewRPr().addNewShd();
                 ctShd.setFill(Color.YELLOW.getColor());
             }
