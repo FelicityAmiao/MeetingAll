@@ -5,9 +5,7 @@ import com.group8.meetingall.entity.MeetingRoomScheduler;
 import com.group8.meetingall.service.IMeetingRoomService;
 import com.group8.meetingall.service.SchedulerService;
 import com.group8.meetingall.utils.IOTConnectUtil;
-import com.group8.meetingall.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +25,6 @@ public class SchedulerJob {
     @Autowired
     SchedulerService schedulerService;
 
-    @Autowired
-    private SimpMessageSendingOperations simpMessageSendingOperations;
-
     @Scheduled(cron = "0/30 * * * * *")
     public void currentStatusSchedule() {
         System.out.println("Start current status monitor");
@@ -46,9 +41,7 @@ public class SchedulerJob {
                     && schedulerService.isMoreThan5Minutes(currentRoom.getLastDateTime())) {
                 schedulerService.upsertSchedule(meetingRoom.getRoom());
                 schedulerService.updateStatusById(meetingRoom.getId());
-                simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", JsonUtils.toJson(meetingRoom));
                 IOTConnectUtil.sendDeviceStatusToIOT("0", "Room1");
-
             }
         }
     }

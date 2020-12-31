@@ -4,8 +4,10 @@ import com.group8.meetingall.entity.MeetingRoom;
 import com.group8.meetingall.entity.MeetingRoomScheduler;
 import com.group8.meetingall.repository.MeetingRoomRepository;
 import com.group8.meetingall.repository.ScheduleRepository;
+import com.group8.meetingall.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -22,6 +24,8 @@ public class SchedulerService {
     @Autowired
     MeetingRoomRepository meetingRoomRepository;
 
+    @Autowired
+    private SimpMessageSendingOperations simpMessageSendingOperations;
 
     public MeetingRoomScheduler queryScheduleByRoomName(String roomName) {
         return scheduleRepository.findByRoomName(roomName);
@@ -34,12 +38,13 @@ public class SchedulerService {
                 meetingRoom.setCurrentStatus(IDLE_STATUS);
                 meetingRoom.setDeviceStarted(false);
                 meetingRoomRepository.save(meetingRoom);
+                simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", JsonUtils.toJson(meetingRoom));
             }
         }
     }
 
     public boolean isMoreThan5Minutes(Date lastDateTime) {
-        long standard = 300000;
+        long standard = 300;
         long lastDateTimeSecond = lastDateTime.getTime();
         long currentDateTimeSecond = new Date().getTime();
         return currentDateTimeSecond - lastDateTimeSecond > standard;
