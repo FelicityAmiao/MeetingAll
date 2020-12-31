@@ -2,6 +2,7 @@ package com.group8.meetingall.controller;
 
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
+import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.service.MyMeetingService;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
@@ -44,7 +45,7 @@ public class MyMeetingController {
     }
 
     @GetMapping("/report/{meetingId}")
-    private MeetingVo generateReport(@PathVariable(value = "meetingId") String meetingId) {
+    private MeetingVo generateReport(@PathVariable(value = "meetingId") String meetingId) throws ASRException {
         return meetingService.generateReport(meetingId);
     }
 
