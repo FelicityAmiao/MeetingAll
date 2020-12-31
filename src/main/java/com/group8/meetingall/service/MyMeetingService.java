@@ -2,6 +2,7 @@ package com.group8.meetingall.service;
 
 import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
+import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.repository.MeetingRepository;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
@@ -111,11 +112,14 @@ public class MyMeetingService {
                 .collect(Collectors.toList());
     }
 
-    public MeetingVo generateReport(String meetingId) {
+    public MeetingVo generateReport(String meetingId) throws ASRException {
         log.info("开始生成报告...");
         MeetingProfile meeting = meetingRepository.findMeetingByMeetingId(meetingId);
         if (meeting == null) {
             return null;
+        }
+        if (ObjectUtils.isEmpty(meeting.getAudioAddress())) {
+            throw new ASRException("录音地址不存在");
         }
         meeting.setStatus(REPORT_ING);
         String fileName = generateReportName(meeting);
@@ -144,7 +148,7 @@ public class MyMeetingService {
                     }
                     String uuid = null;
                     try {
-                        uuid = xfCantoneseASRService.startXFASRProcessing(audioName+".pcm");
+                        uuid = xfCantoneseASRService.startXFASRProcessing(audioName + ".pcm");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
