@@ -27,14 +27,13 @@ public class XFCantoneseASRService extends WebSocketListener {
     private static final String appid = "5fcd6f17";
     private static final String apiSecret = "49b35812b3f76ada00c60fab65b594ab";
     private static final String apiKey = "dcbd8654315265b138314a0a2107bbf0";
+    private final String audioPath="/home/meetingall/files/audio/";
     public static final int StatusFirstFrame = 0;
     public static final int StatusContinueFrame = 1;
     public static final int StatusLastFrame = 2;
     private Decoder decoder = new Decoder();
     private String result = null;
     private String audioAddress = null;
-    @Value("${filePath.audio}")
-    private String audioPath;
     @Autowired
     TranslateResultRepository translateResultRepository;
 
@@ -128,8 +127,8 @@ public class XFCantoneseASRService extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         super.onMessage(webSocket, text);
+        log.info("开始处理返回消息...");
         ResponseData resp = JsonUtils.fromJson(text, ResponseData.class);
-        System.out.println(resp.toString());
         if (resp != null) {
             if (resp.getCode() != 0) {
                 log.info("code=>" + resp.getCode() + " error=>" + resp.getMessage() + " sid=" + resp.getSid());
@@ -149,7 +148,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                 if (resp.getData().getStatus() == 2) {
                     log.info("最终识别结果 ==》" + decoder.toString());
                     setResult(decoder.toString());
-                    System.out.println("本次识别sid ==》" + resp.getSid());
+                    log.info("本次识别sid ==》" + resp.getSid());
                     decoder.discard();
                     webSocket.close(1000, "");
                     log.info("会话结束，关闭会话");
@@ -187,7 +186,7 @@ public class XFCantoneseASRService extends WebSocketListener {
         while (true) {
             String result = xfCantoneseASRService.getResult();
             if (result != null) {
-                System.out.println("返回结果--" + xfCantoneseASRService.getResult());
+                log.info("返回结果--" + xfCantoneseASRService.getResult());
                 TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(result);
                 return translateResultEntity.getUUID();
             }
