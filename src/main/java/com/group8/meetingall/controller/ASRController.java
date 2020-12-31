@@ -1,7 +1,7 @@
 package com.group8.meetingall.controller;
 
-import com.group8.meetingall.service.ASRService;
-import com.group8.meetingall.service.CantoneseASRService;
+import com.group8.meetingall.service.XFChineseASRService;
+import com.group8.meetingall.service.TCCantoneseASRService;
 import com.group8.meetingall.service.ReportGenerationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -29,23 +28,23 @@ public class ASRController {
     @Value("${server.port}")
     private String serverPort;
     @Autowired
-    ASRService asrService;
+    XFChineseASRService XFChineseAsrService;
     @Autowired
-    CantoneseASRService cantoneseASRService;
+    TCCantoneseASRService TCCantoneseASRService;
     @Autowired
     ReportGenerationService reportGenerationService;
     public static final String AUDIO_FILE = "test.mp3";
 
     @GetMapping(value = "/convert")
     public String convert() throws UnknownHostException {
-        String UUID = asrService.convert(AUDIO_FILE);
+        String UUID = XFChineseAsrService.convert(AUDIO_FILE);
         InetAddress inetAddress = InetAddress.getLocalHost();
         return "http://" + inetAddress.getHostName() + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 
     @GetMapping(value = "/convertCantoneseVideo")
     public String convertCantoneseVideo() throws IOException {
-        String UUID = cantoneseASRService.startConvert("cantonese.mp3");
+        String UUID = TCCantoneseASRService.startConvert("cantonese.mp3");
         return "http://www.meetingall.info" + ":" + serverPort + "/api/ASR/getTranslateResultFile?uuid=" + UUID;
     }
 

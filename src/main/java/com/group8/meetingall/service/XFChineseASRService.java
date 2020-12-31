@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.group8.meetingall.dto.asr.ASRAPIResultDto;
 import com.group8.meetingall.entity.TranslateResultEntity;
+import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.EncryptUtil;
 import com.group8.meetingall.utils.HttpUtil;
 import com.group8.meetingall.utils.SliceIdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class ASRService {
+@Slf4j
+public class XFChineseASRService {
     public static final int SLICE_SICE = 10485760;// 10M
-    public static final String AUDIO_FILE_PATH = ASRService.class.getResource("/").getPath() + "/audio/test.mp3";
     @Autowired
     TranslateResultRepository translateResultRepository;
     @Value("${LFASR.appID}")
@@ -50,14 +52,15 @@ public class ASRService {
 
     public String convert(String fileName) {
         try {
-            File file = new File(audioPath);
-            if (!file.exists() && !file.isDirectory()) {
-                file.mkdirs();
-            }
             File audio = new File(audioPath + fileName);
+            if (!audio.exists()) {
+                throw new ASRException("文件路径错误！audioPath is " + audioPath + ",fileName is " + fileName);
+            }
             FileInputStream fis = new FileInputStream(audio);
+            log.info("开始预处理...");
             // 预处理
             String taskId = prepare(audio);
+            log.info("开始上传分片...");
             // 分片上传文件
             int len = 0;
             byte[] slice = new byte[SLICE_SICE];
@@ -69,12 +72,13 @@ public class ASRService {
                 // 上传分片
                 uploadSlice(taskId, generator.getNextSliceId(), slice);
             }
+            log.info("开始合并文件...");
             // 合并文件
             merge(taskId);
             // 轮询获取任务结果
             while (true) {
                 try {
-                    System.out.println("sleep a while Zzz");
+                    log.info("文件转写处理中，请耐心等待...");
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -86,10 +90,10 @@ public class ASRService {
                     }
                     String taskStatus = taskProgress.getData();
                     if (JSON.parseObject(taskStatus).getInteger("status") == 9) {
-                        System.out.println("任务完成！");
+                        log.info("任务完成！");
                         break;
                     }
-                    System.out.println("任务处理中：" + taskStatus);
+                    log.info("任务处理中：" + taskStatus);
                 } else {
                     throw new RuntimeException("获取任务进度失败！");
                 }
@@ -104,7 +108,7 @@ public class ASRService {
             }
             TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(resultStr.toString());
             return translateResultEntity.getUUID();
-        } catch (SignatureException | IOException e) {
+        } catch (SignatureException | IOException | ASRException e) {
             e.printStackTrace();
         }
         return null;
@@ -149,7 +153,7 @@ public class ASRService {
         if (resultDto.getOk() != 0 || taskId == null) {
             throw new RuntimeException("预处理失败！" + response);
         }
-        System.out.println("预处理成功, taskid：" + taskId);
+        log.info("预处理成功, taskid：" + taskId);
         return taskId;
     }
 
@@ -161,10 +165,10 @@ public class ASRService {
             throw new RuntimeException("分片上传接口请求失败！");
         }
         if (JSON.parseObject(response).getInteger("ok") == 0) {
-            System.out.println("分片上传成功, sliceId: " + sliceId + ", sliceLen: " + slice.length);
+            log.info("分片上传成功, sliceId: " + sliceId + ", sliceLen: " + slice.length);
             return;
         }
-        System.out.println("params: " + JSON.toJSONString(uploadParam));
+        log.info("params: " + JSON.toJSONString(uploadParam));
         throw new RuntimeException("分片上传失败！" + response + "|" + taskId);
     }
 
@@ -175,7 +179,7 @@ public class ASRService {
             throw new RuntimeException("文件合并接口请求失败！");
         }
         if (JSON.parseObject(response).getInteger("ok") == 0) {
-            System.out.println("文件合并成功, taskId: " + taskId);
+            log.info("文件合并成功, taskId: " + taskId);
             return;
         }
         throw new RuntimeException("文件合并失败！" + response);
@@ -201,7 +205,4 @@ public class ASRService {
         return response.getData();
     }
 
-    public String getTranslateResultFile(String uuid)  {
-        return translateResultRepository.getFileContent(uuid);
-    }
 }

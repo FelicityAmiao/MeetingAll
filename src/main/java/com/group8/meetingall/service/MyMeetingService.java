@@ -33,15 +33,13 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class MyMeetingService {
     @Autowired
-    CantoneseASRService cantoneseASRService;
-    @Autowired
     XFCantoneseASRService xfCantoneseASRService;
     @Autowired
     HighFrequencyService highFrequencyService;
     @Autowired
     private MeetingRepository meetingRepository;
     @Autowired
-    private ASRService asrService;
+    private XFChineseASRService XFChineseAsrService;
     @Value("${filePath.audio}")
     private String audioPath;
 
@@ -126,7 +124,7 @@ public class MyMeetingService {
         switch (meeting.getLanguage()) {
             case 1:
                 CompletableFuture.supplyAsync(() -> {
-                    String uuid = asrService.convert(meeting.getAudioAddress());
+                    String uuid = XFChineseAsrService.convert(meeting.getAudioAddress());
                     generateWordFile(meeting, fileName, uuid);
                     return fileName;
                 });
@@ -136,16 +134,7 @@ public class MyMeetingService {
                 CompletableFuture.supplyAsync(() -> {
                     String audioAddress = meeting.getAudioAddress();
                     String audioName = audioAddress.substring(0, audioAddress.indexOf("."));
-                    ProcessBuilder pb = new ProcessBuilder("/home/test/test.sh", audioName);
-                    Process process = null;
-                    try {
-                        process = pb.start();
-                        log.info("开始处理脚本...");
-                        int exitValue = process.waitFor();
-                        log.info("处理脚本结束,exit value is " + exitValue);
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    transformVideoToPCMFormat(audioName);
                     String uuid = null;
                     try {
                         uuid = xfCantoneseASRService.startXFASRProcessing(audioName + ".pcm");
@@ -162,6 +151,19 @@ public class MyMeetingService {
                 break;
         }
         return convertToMeetingVo(meeting);
+    }
+
+    private void transformVideoToPCMFormat(String audioName) {
+        ProcessBuilder pb = new ProcessBuilder("/home/test/test.sh", audioName);
+        Process process = null;
+        try {
+            process = pb.start();
+            log.info("开始处理脚本...");
+            int exitValue = process.waitFor();
+            log.info("处理脚本结束,exit value is " + exitValue);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {

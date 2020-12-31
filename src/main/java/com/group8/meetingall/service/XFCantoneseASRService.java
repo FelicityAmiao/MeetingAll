@@ -7,7 +7,6 @@ import com.group8.meetingall.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -27,7 +26,7 @@ public class XFCantoneseASRService extends WebSocketListener {
     private static final String appid = "5fcd6f17";
     private static final String apiSecret = "49b35812b3f76ada00c60fab65b594ab";
     private static final String apiKey = "dcbd8654315265b138314a0a2107bbf0";
-    private final String audioPath="/home/meetingall/files/audio/";
+    private final String audioPath = "/home/meetingall/files/audio/";
     public static final int StatusFirstFrame = 0;
     public static final int StatusContinueFrame = 1;
     public static final int StatusLastFrame = 2;
@@ -36,23 +35,6 @@ public class XFCantoneseASRService extends WebSocketListener {
     private String audioAddress = null;
     @Autowired
     TranslateResultRepository translateResultRepository;
-
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public String getAudioAddress() {
-        return audioAddress;
-    }
-
-    public void setAudioAddress(String audioAddress) {
-        this.audioAddress = audioAddress;
-    }
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
@@ -90,6 +72,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                                             .build())
                                     .build();
                             webSocket.send(JsonUtils.toJson(xfRequestDTO));
+                            log.info("第一帧发送完毕！");
                             status = StatusContinueFrame;  // 发送完第一帧改变status 为 1
                             break;
                         case StatusContinueFrame:  //中间帧status = 1
@@ -102,6 +85,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                                             .build())
                                     .build();
                             webSocket.send(JsonUtils.toJson(xfRequestDTO1));
+                            log.info("发送中间帧！");
                             break;
                         case StatusLastFrame:    // 最后一帧音频status = 2 ，标志音频发送结束
                             XFRequestDTO xfRequestDTO2 = XFRequestDTO.builder()
@@ -221,6 +205,22 @@ public class XFCantoneseASRService extends WebSocketListener {
                 .addQueryParameter("host", url.getHost()).
                         build();
         return httpUrl.toString();
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getAudioAddress() {
+        return audioAddress;
+    }
+
+    public void setAudioAddress(String audioAddress) {
+        this.audioAddress = audioAddress;
     }
 
 }

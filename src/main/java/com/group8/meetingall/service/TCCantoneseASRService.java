@@ -29,7 +29,7 @@ import static com.group8.meetingall.utils.HttpUtil.REQUSET_METHOD_POST;
 
 @Service
 @Slf4j
-public class CantoneseASRService {
+public class TCCantoneseASRService {
     @Autowired
     TranslateResultRepository translateResultRepository;
     @Value("${TCASR.host}")
