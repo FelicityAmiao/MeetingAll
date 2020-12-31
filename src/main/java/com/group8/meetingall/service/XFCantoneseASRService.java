@@ -63,7 +63,8 @@ public class XFCantoneseASRService extends WebSocketListener {
             int frameSize = 1280; //每一帧音频的大小,建议每 40ms 发送 122B
             int intervel = 40;
             int status = 0;  // 音频的状态
-            try (FileInputStream fs = new FileInputStream(audioPath+ getAudioAddress())) {
+            log.info("audioPath--" + audioPath + ",audioAddress----" + getAudioAddress() + ",文件路径为--" + audioPath + getAudioAddress());
+            try (FileInputStream fs = new FileInputStream(audioPath + getAudioAddress())) {
                 byte[] buffer = new byte[frameSize];
                 end:
                 while (true) {
