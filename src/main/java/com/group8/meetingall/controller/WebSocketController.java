@@ -3,6 +3,7 @@ package com.group8.meetingall.controller;
 import com.group8.meetingall.entity.MeetingRoom;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -19,7 +20,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/report")
-    @SendToUser("/queue/reportGeneration")
+    @SendTo("/queue/reportGeneration")
     public MeetingRecordVo informReportCreated(MeetingRecordVo meetingRecordVo) {
         return meetingRecordVo;
     }

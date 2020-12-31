@@ -5,11 +5,16 @@ import com.group8.meetingall.repository.TranslateResultRepository;
 import com.group8.meetingall.utils.JsonUtils;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/test")
@@ -25,9 +30,18 @@ public class TestingDeploy {
     private SimpMessageSendingOperations simpMessageSendingOperations;
 
     @PostMapping("/websocket")
-    public String testWebSocket(@RequestBody MeetingRoom meetingRoom) {
+    public String testWebSocket(@Header("simpSessionId") String sessionId, @RequestBody MeetingRoom meetingRoom) {
         String s = JsonUtils.toJson(meetingRoom);
         simpMessageSendingOperations.convertAndSend("/topic/subscribeMeetingStatus", s);
+        MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
+        meetingRecordVo.setMeetingId("1");
+        return s;
+    }
+
+    @PostMapping("/websocket2")
+    public String testWebSocket2(@RequestBody MeetingRecordVo meetingRecordVo) {
+        String s = JsonUtils.toJson(meetingRecordVo);
+        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", s);
         return s;
     }
 

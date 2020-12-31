@@ -4,6 +4,7 @@ import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.service.MyMeetingService;
+import com.group8.meetingall.utils.JsonUtils;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import com.itmuch.lightsecurity.jwt.UserOperator;
@@ -12,10 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @CrossOrigin
@@ -26,6 +29,9 @@ public class MyMeetingController {
     @Autowired
     private MyMeetingService meetingService;
     private final UserOperator userOperator;
+
+    @Autowired
+    private SimpMessageSendingOperations simpMessageSendingOperations;
 
     @PostMapping
     private MeetingVo addMeeting(@RequestBody MeetingDto meetingDto) {
@@ -46,7 +52,16 @@ public class MyMeetingController {
 
     @GetMapping("/report/{meetingId}")
     private MeetingVo generateReport(@PathVariable(value = "meetingId") String meetingId) throws ASRException {
-        return meetingService.generateReport(meetingId);
+        MeetingVo meetingVo = meetingService.generateReport(meetingId);
+        MeetingRecordVo meeting = new MeetingRecordVo();
+        meeting.setReportAddress(meetingVo.getReportAddress());
+        meeting.setStatus(meetingVo.getStatus());
+        MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
+        meetingRecordVo.setMeetingId(meeting.getMeetingId());
+        meetingRecordVo.setReportAddress(meeting.getReportAddress());
+        meetingRecordVo.setStatus(meetingRecordVo.getStatus());
+        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", JsonUtils.toJson(meetingRecordVo));
+        return meetingVo;
     }
 
     @GetMapping("/meetingrecords")

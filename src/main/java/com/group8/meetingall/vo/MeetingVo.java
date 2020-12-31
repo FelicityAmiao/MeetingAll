@@ -20,4 +20,5 @@ public class MeetingVo {
     private boolean isActive;
     private String status;
     private String subject;
+    private String reportAddress;
 }

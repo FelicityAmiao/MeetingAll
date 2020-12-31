@@ -1,5 +1,7 @@
 package com.group8.meetingall.config;
 
+import com.group8.meetingall.entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${websocket.origin}")
@@ -44,8 +47,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         return true;
                     }
                 }).setAllowedOrigins(origin).withSockJS();
-
-
     }
-
 }

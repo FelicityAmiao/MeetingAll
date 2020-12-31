@@ -4,6 +4,7 @@ import com.group8.meetingall.dto.MeetingDto;
 import com.group8.meetingall.entity.MeetingProfile;
 import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.repository.MeetingRepository;
+import com.group8.meetingall.utils.JsonUtils;
 import com.group8.meetingall.vo.MeetingRecordVo;
 import com.group8.meetingall.vo.MeetingVo;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,9 @@ public class MyMeetingService {
     private XFChineseASRService XFChineseAsrService;
     @Value("${filePath.audio}")
     private String audioPath;
+
+    @Autowired
+    private SimpMessageSendingOperations simpMessageSendingOperations;
 
     Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
