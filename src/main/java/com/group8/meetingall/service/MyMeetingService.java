@@ -154,7 +154,7 @@ public class MyMeetingService {
     }
 
     private void transformVideoToPCMFormat(String audioName) {
-        ProcessBuilder pb = new ProcessBuilder("/home/test/test.sh", audioName);
+        ProcessBuilder pb = new ProcessBuilder("/home/meetingall/files/script/transformToPCM.sh", audioName);
         Process process = null;
         try {
             process = pb.start();
