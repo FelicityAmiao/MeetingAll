@@ -1,4 +1,4 @@
-package com.group8.meetingall.dto.asr;
+package com.group8.meetingall.dto.tcasr;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

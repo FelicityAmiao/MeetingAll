@@ -1,5 +1,6 @@
 package com.group8.meetingall.controller;
 
+import com.group8.meetingall.service.XFCantoneseASRService;
 import com.group8.meetingall.service.XFChineseASRService;
 import com.group8.meetingall.service.TCCantoneseASRService;
 import com.group8.meetingall.service.ReportGenerationService;
@@ -30,6 +31,8 @@ public class ASRController {
     @Autowired
     XFChineseASRService XFChineseAsrService;
     @Autowired
+    XFCantoneseASRService xfCantoneseASRService;
+    @Autowired
     TCCantoneseASRService TCCantoneseASRService;
     @Autowired
     ReportGenerationService reportGenerationService;
@@ -55,6 +58,11 @@ public class ASRController {
         Process process = pb.start();
         int exitValue = process.waitFor();
         return "exitValue is " + exitValue;
+    }
+
+    @GetMapping(value = "/testTranslateToSimplifiedChinese")
+    public String testTranslateToSimplifiedChinese() throws Exception {
+        return xfCantoneseASRService.startXFASRProcessing("test");
     }
 
     @GetMapping(value = "/getTranslateResultFile")

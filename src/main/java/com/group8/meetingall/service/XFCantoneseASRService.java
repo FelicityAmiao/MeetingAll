@@ -1,13 +1,18 @@
 package com.group8.meetingall.service;
 
+import com.group8.meetingall.dto.baidutrans.TranslateResultDTO;
 import com.group8.meetingall.dto.xfasr.*;
 import com.group8.meetingall.entity.TranslateResultEntity;
 import com.group8.meetingall.repository.TranslateResultRepository;
+import com.group8.meetingall.utils.EncryptUtil;
+import com.group8.meetingall.utils.HttpUtil;
 import com.group8.meetingall.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,14 +27,17 @@ import java.util.*;
 @Service
 @Slf4j
 public class XFCantoneseASRService extends WebSocketListener {
-    private static final String hostUrl = "https://iat-niche-api.xfyun.cn/v2/iat";
-    private static final String appid = "5fcd6f17";
-    private static final String apiSecret = "49b35812b3f76ada00c60fab65b594ab";
-    private static final String apiKey = "dcbd8654315265b138314a0a2107bbf0";
-    private final String audioPath = "/home/meetingall/files/audio/";
-    public static final int StatusFirstFrame = 0;
-    public static final int StatusContinueFrame = 1;
-    public static final int StatusLastFrame = 2;
+    private static final String XF_HOST_URL = "https://iat-niche-api.xfyun.cn/v2/iat";
+    private static final String XF_APP_ID = "5fcd6f17";
+    private static final String XF_API_SECRET = "49b35812b3f76ada00c60fab65b594ab";
+    private static final String XF_API_KEY = "dcbd8654315265b138314a0a2107bbf0";
+    private static final String BAIDU_APP_ID = "20210103000662184";
+    private static final String BAIDU_SECURITY_KEY = "GuIkNBYvMpY9XMMDs9Pi";
+    private static final String BAIDU_TRANS_API_HOST = "http://api.fanyi.baidu.com/api/trans/vip/translate";
+    private final String AUDIO_PATH = "/home/meetingall/files/audio/";
+    public static final int STATUS_FIRST_FRAME = 0;
+    public static final int STATUS_CONTINUE_FRAME = 1;
+    public static final int STATUS_LAST_FRAME = 2;
     private Decoder decoder = new Decoder();
     private String result = null;
     private String audioAddress = null;
@@ -44,20 +52,20 @@ public class XFCantoneseASRService extends WebSocketListener {
             int frameSize = 1280; //每一帧音频的大小,建议每 40ms 发送 122B
             int intervel = 40;
             int status = 0;  // 音频的状态
-            log.info("audioPath--" + audioPath + ",audioAddress----" + getAudioAddress() + ",文件路径为--" + audioPath + getAudioAddress());
-            try (FileInputStream fs = new FileInputStream(audioPath + getAudioAddress())) {
+            log.info("audioPath--" + AUDIO_PATH + ",audioAddress----" + getAudioAddress() + ",文件路径为--" + AUDIO_PATH + getAudioAddress());
+            try (FileInputStream fs = new FileInputStream(AUDIO_PATH + getAudioAddress())) {
                 byte[] buffer = new byte[frameSize];
                 end:
                 while (true) {
                     int len = fs.read(buffer);
                     if (len == -1) {
-                        status = StatusLastFrame;  //文件读完，改变status 为 2
+                        status = STATUS_LAST_FRAME;  //文件读完，改变status 为 2
                     }
                     switch (status) {
-                        case StatusFirstFrame:   // 第一帧音频status = 0
+                        case STATUS_FIRST_FRAME:   // 第一帧音频status = 0
                             XFRequestDTO xfRequestDTO = XFRequestDTO.builder()
                                     .common(CommonDTO.builder()
-                                            .app_id(appid)
+                                            .app_id(XF_APP_ID)
                                             .build())
                                     .business(BusinessDTO.builder()
                                             .language("zh_cn")
@@ -65,7 +73,7 @@ public class XFCantoneseASRService extends WebSocketListener {
                                             .accent("cn_cantonese")
                                             .build())
                                     .data(RequestDataDTO.builder()
-                                            .status(StatusFirstFrame)
+                                            .status(STATUS_FIRST_FRAME)
                                             .format("audio/L16;rate=16000")
                                             .encoding("raw")
                                             .audio(Base64.getEncoder().encodeToString(Arrays.copyOf(buffer, len)))
@@ -73,12 +81,12 @@ public class XFCantoneseASRService extends WebSocketListener {
                                     .build();
                             webSocket.send(JsonUtils.toJson(xfRequestDTO));
                             log.info("第一帧发送完毕！");
-                            status = StatusContinueFrame;  // 发送完第一帧改变status 为 1
+                            status = STATUS_CONTINUE_FRAME;  // 发送完第一帧改变status 为 1
                             break;
-                        case StatusContinueFrame:  //中间帧status = 1
+                        case STATUS_CONTINUE_FRAME:  //中间帧status = 1
                             XFRequestDTO xfRequestDTO1 = XFRequestDTO.builder()
                                     .data(RequestDataDTO.builder()
-                                            .status(StatusContinueFrame)
+                                            .status(STATUS_CONTINUE_FRAME)
                                             .format("audio/L16;rate=16000")
                                             .encoding("raw")
                                             .audio(Base64.getEncoder().encodeToString(Arrays.copyOf(buffer, len)))
@@ -87,10 +95,10 @@ public class XFCantoneseASRService extends WebSocketListener {
                             webSocket.send(JsonUtils.toJson(xfRequestDTO1));
                             log.info("发送中间帧！");
                             break;
-                        case StatusLastFrame:    // 最后一帧音频status = 2 ，标志音频发送结束
+                        case STATUS_LAST_FRAME:    // 最后一帧音频status = 2 ，标志音频发送结束
                             XFRequestDTO xfRequestDTO2 = XFRequestDTO.builder()
                                     .data(RequestDataDTO.builder()
-                                            .status(StatusLastFrame)
+                                            .status(STATUS_LAST_FRAME)
                                             .format("audio/L16;rate=16000")
                                             .encoding("raw")
                                             .audio("")
@@ -160,7 +168,7 @@ public class XFCantoneseASRService extends WebSocketListener {
 
     public String startXFASRProcessing(String audioAddress) throws Exception {
         log.info("开始转写过程...");
-        String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
+        String authUrl = getAuthUrl(XF_HOST_URL, XF_API_KEY, XF_API_SECRET);
         OkHttpClient client = new OkHttpClient.Builder().build();
         String url = authUrl.replace("http://", "ws://").replace("https://", "wss://");
         Request request = new Request.Builder().url(url).build();
@@ -170,8 +178,10 @@ public class XFCantoneseASRService extends WebSocketListener {
         while (true) {
             String result = xfCantoneseASRService.getResult();
             if (result != null) {
-                log.info("返回结果--" + xfCantoneseASRService.getResult());
-                TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(result);
+                log.info("转写结果--" + xfCantoneseASRService.getResult());
+                String simplifiedChinese = transformToSimplifiedChinese(result);
+                log.info("中文简体结果--" + simplifiedChinese);
+                TranslateResultEntity translateResultEntity = translateResultRepository.saveTranslateResult(simplifiedChinese);
                 return translateResultEntity.getUUID();
             }
             Thread.sleep(500);// 因为监听器是异步的，需要返回结果
@@ -205,6 +215,28 @@ public class XFCantoneseASRService extends WebSocketListener {
                 .addQueryParameter("host", url.getHost()).
                         build();
         return httpUrl.toString();
+    }
+
+    private String transformToSimplifiedChinese(String query) {
+        String transResult = getTransResult(query, "yue", "zh");
+        log.info("返回结果--" + transResult);
+        TranslateResultDTO translateResultDTO = JsonUtils.fromJson(transResult, TranslateResultDTO.class);
+        return translateResultDTO.getTrans_result().get(0).getDst();
+    }
+
+    private String getTransResult(String query, String from, String to) {
+        MultiValueMap<String, String> baseParam = new LinkedMultiValueMap<>();
+        baseParam.put("q", Collections.singletonList(query));
+        baseParam.put("from", Collections.singletonList(from));
+        baseParam.put("to", Collections.singletonList(to));
+        baseParam.put("appid", Collections.singletonList(BAIDU_APP_ID));
+        // 随机数
+        String salt = String.valueOf(System.currentTimeMillis());
+        baseParam.put("salt", Collections.singletonList(salt));
+        // 签名
+        String src = BAIDU_APP_ID + query + salt + BAIDU_SECURITY_KEY; // 加密前的原文
+        baseParam.put("sign", Collections.singletonList(EncryptUtil.MD5(src)));
+        return HttpUtil.post(BAIDU_TRANS_API_HOST, baseParam);
     }
 
     public String getResult() {

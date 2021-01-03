@@ -1,6 +1,6 @@
 package com.group8.meetingall.service;
 
-import com.group8.meetingall.dto.asr.*;
+import com.group8.meetingall.dto.tcasr.*;
 import com.group8.meetingall.entity.TranslateResultEntity;
 import com.group8.meetingall.exception.ASRException;
 import com.group8.meetingall.repository.TranslateResultRepository;

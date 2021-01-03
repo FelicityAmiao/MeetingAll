@@ -1,4 +1,4 @@
-package com.group8.meetingall.dto.asr;
+package com.group8.meetingall.dto.tcasr;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateRecTaskResponseDTO {
+public class DescribeTaskStatusResponseDTO {
   @JsonProperty(value = "Response")
-  public CreateRecTaskDTO response;
+  public DescribeTaskStatusDTO response;
 }
