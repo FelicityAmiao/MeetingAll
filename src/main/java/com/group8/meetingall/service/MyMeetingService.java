@@ -108,8 +108,7 @@ public class MyMeetingService {
             meetingRecordVoList.add(meetingRecordVo);
         }
         return meetingRecordVoList.stream()
-                .sorted(Comparator.comparing(MeetingRecordVo::getStartDate))
-                .sorted(Comparator.comparing(MeetingRecordVo::getStartTime))
+                .sorted(Comparator.comparing(MeetingRecordVo::getCreateTime))
                 .collect(Collectors.toList());
     }
 
