@@ -40,7 +40,8 @@ public class FileController {
             }
             response.setContentType(contentType);
             response.setHeader("Content-Disposition", "attachment;filename="
-                    .concat(fileName));
+                    .concat(URLEncoder.encode(fileName, "UTF-8")
+                            .replaceAll("\\+", "%20")));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
