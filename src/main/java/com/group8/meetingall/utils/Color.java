@@ -1,5 +1,9 @@
 package com.group8.meetingall.utils;
 
+/**
+ * Joi Liu
+ * This is used for word file style
+ */
 public enum Color {
     RED("FF0000"),
     BLACK("000000"),

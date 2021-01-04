@@ -65,7 +65,7 @@ public class UserController {
         String username = jsonObject.getString("username");
         String originPassword = jsonObject.getString("originPassword");
         String newPassword = jsonObject.getString("newPassword");
-        PasswordVo PasswordVo = userService.changePassword(username, originPassword,newPassword);
-        return new ResponseEntity<>(PasswordVo, HttpStatus.OK);
+        PasswordVo passwordVo = userService.changePassword(username, originPassword,newPassword);
+        return new ResponseEntity<>(passwordVo, HttpStatus.OK);
     }
 }

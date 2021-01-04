@@ -19,6 +19,7 @@ public class Decoder {
         }
         this.texts[text.sn] = text;
     }
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Text t : this.texts) {

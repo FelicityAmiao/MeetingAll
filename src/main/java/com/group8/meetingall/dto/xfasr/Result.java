@@ -25,7 +25,6 @@ public class Result {
         }
         text.sn = this.sn;
         text.text = sb.toString();
-        text.sn = this.sn;
         text.ls = this.ls;
         return text;
     }
