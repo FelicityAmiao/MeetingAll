@@ -179,8 +179,10 @@ public class MyMeetingService {
         meetingRecordVo.setMeetingId(meeting.getMeetingId());
         meetingRecordVo.setReportAddress(meeting.getReportAddress());
         meetingRecordVo.setStatus(meeting.getStatus());
-        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", JsonUtils.toJson(meetingRecordVo));
         meetingRepository.upsertMeeting(meeting);
+        log.info("generate the word file success!");
+        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", JsonUtils.toJson(meetingRecordVo));
+        log.info("send success!");
     }
 
     private String generateReportName(MeetingProfile meetingProfile) {
