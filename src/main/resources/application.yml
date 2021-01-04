@@ -10,3 +10,6 @@ light-security:
     algorithm: hs512
     secret: http-security-secret-modify-mehttp-security-secret-modify
     expiration-in-second: 1209600
+
+keyword:
+  percent: 0.1

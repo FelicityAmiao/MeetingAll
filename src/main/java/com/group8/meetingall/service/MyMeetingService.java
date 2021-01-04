@@ -38,17 +38,15 @@ public class MyMeetingService {
     XFCantoneseASRService xfCantoneseASRService;
     @Autowired
     HighFrequencyService highFrequencyService;
+    Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
     @Autowired
     private MeetingRepository meetingRepository;
     @Autowired
     private XFChineseASRService XFChineseAsrService;
     @Value("${filePath.audio}")
     private String audioPath;
-
     @Autowired
     private SimpMessageSendingOperations simpMessageSendingOperations;
-
-    Logger logger = LoggerFactory.getLogger(MyMeetingService.class);
 
     public MeetingVo getActiveMeeting(String userId) {
         MeetingProfile meeting = meetingRepository.findActiveMeetingByUserId(userId);
@@ -172,7 +170,7 @@ public class MyMeetingService {
     }
 
     private void generateWordFile(MeetingProfile meeting, String fileName, String uuid) {
-        highFrequencyService.generateHighlightWordFile(uuid, fileName);
+        highFrequencyService.generateHighlightWordFile(uuid, fileName, meeting.getSubject());
         meeting.setReportAddress(fileName);
         meeting.setStatus(REPORT_FINISHED);
         MeetingRecordVo meetingRecordVo = new MeetingRecordVo();

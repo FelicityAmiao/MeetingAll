@@ -1,6 +1,7 @@
 package com.group8.meetingall.utils;
 
 import com.group8.meetingall.entity.CustomRun;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -29,12 +30,12 @@ public class HighlightUtil {
         return text;
     }
 
-    public static XWPFDocument createWord(String text, List<String> keywords) throws Exception {
+    public static XWPFDocument createWord(String text, List<String> keywords,String subject) throws Exception {
         XWPFDocument document = new XWPFDocument();
         XWPFParagraph titleParagraph = document.createParagraph();
         titleParagraph.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun titleParagraphRun = titleParagraph.createRun();
-        titleParagraphRun.setText("Meeting Report");
+        titleParagraphRun.setText(StringUtils.isEmpty(subject) ? "Meeting Report" : subject);
         titleParagraphRun.setColor(Color.BLACK.getColor());
         titleParagraphRun.setFontSize(20);
         XWPFParagraph paragraph = document.createParagraph();

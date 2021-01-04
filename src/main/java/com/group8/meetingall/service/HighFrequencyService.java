@@ -37,13 +37,13 @@ public class HighFrequencyService {
         Set<String> stopWords = StopWords.getInstance();
         tfMap.keySet().forEach(word -> {
             boolean isStopWord = false;
-            for(int i = 0; i < word.length(); i++){
-                if(stopWords.contains(word.substring(i,i+1))){
+            for (int i = 0; i < word.length(); i++) {
+                if (stopWords.contains(word.substring(i, i + 1))) {
                     isStopWord = true;
                     break;
                 }
             }
-            if(!isStopWord){
+            if (!isStopWord) {
                 if (idfMap.containsKey(word)) {
                     keywordList.add(new Keyword(word, tfMap.get(word) * idfMap.get(word)));
                 } else {
@@ -57,14 +57,14 @@ public class HighFrequencyService {
         return keywordList.stream().sorted(Comparator.comparing(Keyword::getFrequency).reversed()).collect(Collectors.toList());
     }
 
-    public void generateHighlightWordFile(String uuid, String fileName) {
+    public void generateHighlightWordFile(String uuid, String fileName, String subject) {
         String reportContent = translateResultRepository.getFileContent(uuid);
         if (nonNull(reportContent) && reportContent.length() > 0) {
             int count = (int) Math.ceil(reportContent.length() * percent);
             List<Keyword> highFrequencyWords = getHighFrequencyWords(reportContent, count);
             List<String> words = highFrequencyWords.stream().map(Keyword::getWord).collect(Collectors.toList());
             try {
-                XWPFDocument word = HighlightUtil.createWord(reportContent, words);
+                XWPFDocument word = HighlightUtil.createWord(reportContent, words, subject);
                 String wholeFilePath = reportPath + fileName;
                 File file = new File(reportPath);
                 if (!file.exists() && !file.isDirectory()) {

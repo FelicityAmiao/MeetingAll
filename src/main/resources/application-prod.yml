@@ -22,9 +22,6 @@ TCASR:
   secretID: AKID5wa9Xh6hSQxJhg78VE1TEHepwqWzdFIA
   secretKey: wc5MSKwJWUJvIn6JhzAGDz9T7VJysaOz
 
-keyword:
-  percent: 0.01
-
 logging:
   level:
     root: info
