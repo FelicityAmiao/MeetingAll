@@ -24,7 +24,7 @@ public class FileController {
         OutputStream out = null;
         String filteType = fileName.substring(fileName.lastIndexOf(".")+1);
         String path = reportPath + fileName;
-        String contentType = "application/msword";
+        String contentType = "application/msword;charset=UTF-8";
         if("wav".equalsIgnoreCase(filteType)){
             path = audioPath + "/" + fileName;
             contentType = "audio/wav";
@@ -40,8 +40,7 @@ public class FileController {
             }
             response.setContentType(contentType);
             response.setHeader("Content-Disposition", "attachment;filename="
-                    .concat(URLEncoder.encode(fileName, "UTF-8")
-                            .replaceAll("\\+", "%20")));
+                    .concat(fileName));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
