@@ -175,6 +175,11 @@ public class MyMeetingService {
         highFrequencyService.generateHighlightWordFile(uuid, fileName);
         meeting.setReportAddress(fileName);
         meeting.setStatus(REPORT_FINISHED);
+        MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
+        meetingRecordVo.setMeetingId(meeting.getMeetingId());
+        meetingRecordVo.setReportAddress(meeting.getReportAddress());
+        meetingRecordVo.setStatus(meeting.getStatus());
+        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", JsonUtils.toJson(meetingRecordVo));
         meetingRepository.upsertMeeting(meeting);
     }
 

@@ -52,16 +52,7 @@ public class MyMeetingController {
 
     @GetMapping("/report/{meetingId}")
     private MeetingVo generateReport(@PathVariable(value = "meetingId") String meetingId) throws ASRException {
-        MeetingVo meetingVo = meetingService.generateReport(meetingId);
-        MeetingRecordVo meeting = new MeetingRecordVo();
-        meeting.setReportAddress(meetingVo.getReportAddress());
-        meeting.setStatus(meetingVo.getStatus());
-        MeetingRecordVo meetingRecordVo = new MeetingRecordVo();
-        meetingRecordVo.setMeetingId(meeting.getMeetingId());
-        meetingRecordVo.setReportAddress(meeting.getReportAddress());
-        meetingRecordVo.setStatus(meetingRecordVo.getStatus());
-        simpMessageSendingOperations.convertAndSend("/queue/reportGeneration", JsonUtils.toJson(meetingRecordVo));
-        return meetingVo;
+        return meetingService.generateReport(meetingId);
     }
 
     @GetMapping("/meetingrecords")
