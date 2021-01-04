@@ -46,6 +46,6 @@ public class HighlightUtilTest {
         List<Keyword> results = highFrequencyService.getHighFrequencyWords(text, count);
         List<String> words = results.stream().map(Keyword::getWord).collect(Collectors.toList());
 
-        HighlightUtil.createWord(text, words);
+        HighlightUtil.createWord(text, words,"TEST");
     }
 }
