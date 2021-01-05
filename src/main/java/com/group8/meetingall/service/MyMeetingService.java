@@ -206,8 +206,8 @@ public class MyMeetingService {
         if (!folder.isDirectory()) {
             folder.mkdir();
         }
-        String newName = meetingSubject + "-" + format + ".wav";
-
+        String newName = meetingSubject + "_" + format + ".wav";
+        newName = newName.replaceAll(SPACE, UNDERLINE);
         try {
             uploadFile.transferTo(new File(folder, newName));
             Update update = new Update();
