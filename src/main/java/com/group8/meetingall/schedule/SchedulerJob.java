@@ -41,7 +41,6 @@ public class SchedulerJob {
                     && schedulerService.isMoreThan5Minutes(currentRoomScheduler.getLastDateTime())) {
                 schedulerService.upsertSchedule(meetingRoom.getRoom());
                 schedulerService.updateStatusById(meetingRoom.getId());
-                IOTConnectUtil.sendDeviceStatusToIOT("0", "Room1");
             }
         }
     }
