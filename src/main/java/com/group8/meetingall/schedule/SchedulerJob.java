@@ -36,12 +36,11 @@ public class SchedulerJob {
     @Transactional(rollbackFor = Exception.class)
     public void currentStatusMonitor(MeetingRoom meetingRoom) {
         if (!ObjectUtils.isEmpty(meetingRoom)) {
-            MeetingRoomScheduler currentRoom = schedulerService.queryScheduleByRoomName(meetingRoom.getRoom());
-            if (USING_STATUS.equals(meetingRoom.getCurrentStatus()) && !ObjectUtils.isEmpty(currentRoom)
-                    && schedulerService.isMoreThan5Minutes(currentRoom.getLastDateTime())) {
+            MeetingRoomScheduler currentRoomScheduler = schedulerService.queryScheduleByRoomName(meetingRoom.getRoom());
+            if (!ObjectUtils.isEmpty(currentRoomScheduler)
+                    && schedulerService.isMoreThan5Minutes(currentRoomScheduler.getLastDateTime())) {
                 schedulerService.upsertSchedule(meetingRoom.getRoom());
                 schedulerService.updateStatusById(meetingRoom.getId());
-                IOTConnectUtil.sendDeviceStatusToIOT("0", "Room1");
             }
         }
     }

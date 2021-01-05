@@ -16,6 +16,7 @@ public class MeetingRoom {
     private String currentStatus;
     @JsonProperty("isDeviceStarted")
     private boolean isDeviceStarted;
+    public MeetingRoom () {}
     public MeetingRoom(String id, String office, String room, String currentStatus) {
         this.id = id;
         this.office = office;

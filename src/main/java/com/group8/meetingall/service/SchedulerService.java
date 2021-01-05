@@ -1,9 +1,12 @@
 package com.group8.meetingall.service;
 
 import com.group8.meetingall.entity.MeetingRoom;
+import com.group8.meetingall.entity.MeetingRoomConfig;
 import com.group8.meetingall.entity.MeetingRoomScheduler;
+import com.group8.meetingall.repository.MeetingRoomConfigRepository;
 import com.group8.meetingall.repository.MeetingRoomRepository;
 import com.group8.meetingall.repository.ScheduleRepository;
+import com.group8.meetingall.utils.IOTConnectUtil;
 import com.group8.meetingall.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class SchedulerService {
     MeetingRoomRepository meetingRoomRepository;
 
     @Autowired
+    MeetingRoomConfigRepository configRepository;
+
+    @Autowired
     private SimpMessageSendingOperations simpMessageSendingOperations;
 
     public MeetingRoomScheduler queryScheduleByRoomName(String roomName) {
@@ -35,6 +41,9 @@ public class SchedulerService {
         if (StringUtils.isNoneBlank(id)) {
             MeetingRoom meetingRoom = meetingRoomRepository.findById(id).get();
             if (!ObjectUtils.isEmpty(meetingRoom)) {
+                if (meetingRoom.isDeviceStarted()) {
+                    IOTConnectUtil.sendDeviceStatusToIOT("0", "Room1");
+                }
                 meetingRoom.setCurrentStatus(IDLE_STATUS);
                 meetingRoom.setDeviceStarted(false);
                 meetingRoomRepository.save(meetingRoom);
@@ -44,10 +53,10 @@ public class SchedulerService {
     }
 
     public boolean isMoreThan5Minutes(Date lastDateTime) {
-        long standard = 300;
+        MeetingRoomConfig meetingRoomConfig = configRepository.findByKey("Monitor_Scheduler_Time");
         long lastDateTimeSecond = lastDateTime.getTime();
         long currentDateTimeSecond = new Date().getTime();
-        return currentDateTimeSecond - lastDateTimeSecond > standard;
+        return currentDateTimeSecond - lastDateTimeSecond > Long.parseLong(meetingRoomConfig.getValue());
     }
 
     public void upsertSchedule(String roomName) {

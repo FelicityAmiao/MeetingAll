@@ -50,6 +50,7 @@ public class MeetingRoomServiceImpl implements IMeetingRoomService {
       String deviceStatus = meetingRoom.isDeviceStarted() ? DEVICE_START_STATUS : DEVICE_STOP_STATUS;
       ResponseEntity<String> response = IOTConnectUtil.sendDeviceStatusToIOT(deviceStatus, meetingRoom.getRoom());
       if (response.getStatusCodeValue() == 200) {
+        schedulerService.upsertSchedule(meetingRoom.getRoom());
         meetingRoomRepository.save(meetingRoom);
       }
     }
