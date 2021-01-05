@@ -12,4 +12,4 @@ light-security:
     expiration-in-second: 1209600
 
 keyword:
-  percent: 0.1
+  percent: 0.05
